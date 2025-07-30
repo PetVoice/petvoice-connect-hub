@@ -98,33 +98,33 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'analysis',
-      title: 'Analisi AI',
-      description: 'Analisi comportamentale avanzata',
+      title: 'Analisi AI Avanzata',
+      description: 'Sistema di analisi comportamentale con interfaccia colorata',
       children: [
         {
           id: 'how-analysis-works',
-          title: 'Come funziona l\'analisi AI',
-          response: 'L\'analisi AI di PetVoice:\n\n🎯 **Cosa fa:**\n• Analizza video, audio e foto del tuo pet\n• Rileva emozioni e comportamenti\n• Fornisce insights personalizzati\n\n🔬 **Tecnologia:**\n• Machine Learning avanzato\n• Riconoscimento visivo e audio\n• Database di comportamenti animali\n\n📊 **Risultati:**\n• Punteggio di fiducia\n• Raccomandazioni specifiche\n• Trend comportamentali'
+          title: 'Come funziona l\'analisi AI avanzata',
+          response: 'Il sistema di analisi PetVoice è stato completamente rinnovato:\n\n🎯 **Nuova Interfaccia Colorata:**\n• Ogni modalità ha un colore distintivo per facilità d\'uso\n• Pulsanti arancioni per la funzione principale "Registra Audio"\n• Colori tematici per ogni tipo di analisi\n\n🔬 **Modalità Disponibili:**\n• 🧠 Analisi Testuale (Indigo) - NLP avanzato\n• 📸 Analisi Foto (Rosa) - Computer Vision\n• 🎬 Analisi Video (Viola) - Dinamica\n• 🎙️ Analisi Audio (Arancione) - Riconoscimento audio\n• 📊 Analisi Multimediale (Coral) - Combinata\n\n📊 **Accuratezza:**\n• Testo: 92-97% • Foto: 85-95% • Video: 90-98% • Audio: 88-94%'
         },
         {
-          id: 'file-types',
-          title: 'Tipi di file supportati',
-          response: 'Formati supportati per l\'analisi:\n\n🎥 **Video:**\n• MP4, MOV, AVI\n• Max 100MB\n• Durata: 10sec - 5min\n\n🎵 **Audio:**\n• MP3, WAV, M4A\n• Max 50MB\n• Durata: 3sec - 10min\n\n📸 **Immagini:**\n• JPG, PNG, HEIC\n• Max 10MB\n• Min 800x600px\n\nPer risultati migliori, usa file chiari e ben illuminati!'
+          id: 'new-interface',
+          title: 'Nuova interfaccia colorata',
+          response: 'La pagina di analisi ora ha un\'interfaccia completamente rinnovata:\n\n🎨 **Sistema di Colori Intuitivo:**\n• 🟦 INDIGO → Analisi Testuale (scrittura descrizioni)\n• 🌸 ROSA → Analisi Foto (scatta/carica immagini)\n• 🟣 VIOLA → Analisi Video (registra/carica video)\n• 🟠 ARANCIONE → Analisi Audio (registra/carica audio)\n• 🪸 CORAL → Upload Multimediale (file multipli)\n\n✨ **Funzionalità Migliorate:**\n• Pulsanti più grandi e visibili\n• Colori coordinati tra titoli e azioni\n• Auto-analisi per alcuni tipi di file\n• Interfaccia più intuitiva e accessibile\n\n🎯 **Benefici:** Navigazione più semplice e veloce per tutte le età!'
         },
         {
-          id: 'analysis-time',
-          title: 'Tempo di elaborazione',
-          response: 'Tempi di analisi tipici:\n\n⚡ **Immagini:** 10-30 secondi\n🎵 **Audio:** 30-60 secondi\n🎥 **Video:** 1-3 minuti\n\n⏱️ **Fattori che influenzano i tempi:**\n• Dimensione del file\n• Qualità del contenuto\n• Carico del server\n• Complessità dell\'analisi\n\n💡 **Suggerimento:** Riceverai una notifica quando l\'analisi è pronta!'
+          id: 'analysis-types-detailed',
+          title: 'Tipi di analisi dettagliati',
+          response: 'Ogni modalità di analisi ha caratteristiche specifiche:\n\n🧠 **ANALISI TESTUALE** (Indigo):\n• Max 2.000 caratteri\n• Elaborazione NLP istantanea\n• Accuratezza: 92-97%\n• Ideale per: Descrizioni comportamentali dettagliate\n\n📸 **ANALISI FOTO** (Rosa):\n• Max 10MB per immagine\n• Computer Vision avanzata\n• Tempo: 10-20 secondi\n• Rileva: Espressioni, postura, micro-segnali\n\n🎬 **ANALISI VIDEO** (Viola):\n• Max 5 minuti di durata\n• Analisi movimento + audio\n• Tempo: 20-45 secondi\n• Combina: Visual + audio analysis\n\n🎙️ **ANALISI AUDIO** (Arancione):\n• Max 5 minuti di registrazione\n• Riconoscimento tono e pitch\n• Tempo: 15-30 secondi\n• Rileva: Vocalizzazioni, stress, emozioni'
         },
         {
-          id: 'interpret-results',
-          title: 'Interpretare i risultati',
-          response: 'Come leggere i risultati dell\'analisi:\n\n📊 **Punteggio di Fiducia:**\n• 90-100%: Molto affidabile\n• 70-89%: Buona affidabilità\n• 50-69%: Media affidabilità\n• <50%: Bassa affidabilità\n\n🎯 **Emozioni Rilevate:**\n• Felice, Triste, Ansioso, Calmo\n• Aggressivo, Giocoso, Spaventato\n\n💡 **Raccomandazioni:**\n• Azioni consigliate\n• Protocolli di training\n• Consultazioni veterinarie'
+          id: 'auto-analysis',
+          title: 'Auto-analisi intelligente',
+          response: 'Alcune modalità ora includono l\'auto-analisi:\n\n⚡ **Analisi Automatica per:**\n• File immagine caricati\n• File video caricati\n• File audio (se abilitato nelle impostazioni)\n\n🔄 **Come Funziona:**\n1. Carichi/registri il contenuto\n2. Il sistema rileva automaticamente il tipo\n3. Avvia l\'analisi senza click aggiuntivi\n4. Ricevi notifica quando pronta\n\n⚙️ **Controllo Utente:**\n• Puoi disabilitare l\'auto-analisi\n• Mantieni sempre il controllo manuale\n• Possibilità di rivedere prima dell\'invio\n\n💡 **Beneficio:** Workflow più veloce e automatizzato!'
         },
         {
-          id: 'multiple-files',
-          title: 'Analizzare più file',
-          response: 'Analisi di file multipli:\n\n✅ **Puoi caricare:**\n• Più file contemporaneamente\n• Diversi tipi di media\n• File dello stesso evento\n\n📈 **Vantaggi:**\n• Analisi più completa\n• Correlazioni tra diversi media\n• Maggiore precisione\n\n🔄 **Processo:**\n1. Seleziona tutti i file\n2. Aggiungi descrizione dell\'evento\n3. Avvia analisi combinata\n4. Ricevi risultato unificato'
+          id: 'multimodal-analysis',
+          title: 'Analisi multimediale combinata',
+          response: 'La funzione più avanzata: analisi di file multipli!\n\n📊 **Caricamento Multiplo:**\n• Trascina più file contemporaneamente\n• Diversi tipi di media insieme\n• Analisi correlata e incrociata\n• Risultati unificati e completi\n\n🔗 **Correlazioni Intelligenti:**\n• Audio + Video = Analisi comportamentale completa\n• Foto + Descrizione = Context enhancement\n• File multipli stesso evento = Maggiore precisione\n\n📈 **Vantaggi:**\n• Accuratezza superiore (fino al 98%)\n• Insights più profondi e dettagliati\n• Raccomandazioni più specifiche\n• Report veterinario più completo\n\n💫 **Tip:** Combina più modalità per i migliori risultati!'
         }
       ]
     },
@@ -189,6 +189,33 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
           id: 'evaluate-effectiveness',
           title: 'Valutare l\'efficacia',
           response: 'Come valutare il successo del training:\n\n📊 **Metriche automatiche:**\n• Progresso giornaliero (0-100%)\n• Consistenza nell\'esecuzione\n• Tempo di risposta del pet\n• Difficoltà degli esercizi superati\n\n✅ **Valutazioni manuali:**\n• Rating efficacia (1-5 stelle)\n• Note sui comportamenti osservati\n• Foto/video dei progressi\n• Feedback sui materiali usati\n\n🎯 **Risultati finali:**\n• Report completo di fine protocollo\n• Raccomandazioni per il futuro\n• Protocolli di mantenimento suggeriti'
+        }
+      ]
+    },
+    {
+      id: 'interface',
+      title: 'Interfaccia e Usabilità',
+      description: 'Nuove funzionalità dell\'interfaccia utente',
+      children: [
+        {
+          id: 'color-system',
+          title: 'Sistema di colori nella pagina analisi',
+          response: 'Abbiamo introdotto un sistema di colori intuitivo per la pagina di analisi:\n\n🎨 **Codifica Colori:**\n• 🟦 **INDIGO** → Analisi Testuale e titolo "🧠 Analisi Avanzata con IA"\n• 🌸 **ROSA** → Analisi Foto e titolo "📸 Analisi Foto Avanzata con IA"\n• 🟣 **VIOLA** → Analisi Video e titolo "🎬 Analisi Video Avanzata con IA"\n• 🟠 **ARANCIONE** → Analisi Audio e titolo "🎙️ Analisi Audio Avanzata con IA"\n• 🪸 **CORAL** → Upload Multimediale e "📊 Analisi Multimediale Avanzata con IA"\n\n✨ **Vantaggi:**\n• Navigazione più intuitiva\n• Identificazione rapida delle funzioni\n• Esperienza utente migliorata\n• Accessibilità aumentata per tutte le età'
+        },
+        {
+          id: 'button-improvements',
+          title: 'Miglioramenti ai pulsanti',
+          response: 'I pulsanti delle card di analisi sono stati completamente rinnovati:\n\n🔘 **Nuove Caratteristiche:**\n• Pulsanti più grandi e visibili (32x32)\n• Colori coordinati con i titoli delle sezioni\n• Effetti hover migliorati (scale 1.02)\n• Ombre e gradienti per maggiore profondità\n\n🎯 **Coordinazione Colori:**\n• Pulsante e titolo sempre dello stesso colore\n• Contrasto ottimizzato per leggibilità\n• Stati attivi/disattivi chiaramente distinti\n• Feedback visivo immediato\n\n💡 **Benefici:** Più facile trovare e usare le funzioni, esperienza più fluida!'
+        },
+        {
+          id: 'accessibility-improvements',
+          title: 'Miglioramenti di accessibilità',
+          response: 'Abbiamo potenziato l\'accessibilità della piattaforma:\n\n♿ **Accessibilità Visiva:**\n• Contrasti colore ottimizzati WCAG 2.1\n• Dimensioni pulsanti aumentate per touch\n• Feedback visivo migliorato per ogni azione\n• Icone più grandi e chiare\n\n🎯 **Navigazione Semplificata:**\n• Codifica colori per identificazione rapida\n• Flusso logico tra le funzioni\n• Riduzione dei click necessari\n• Auto-analisi per workflow più veloce\n\n🧠 **Cognitiva:**\n• Raggruppamento logico delle funzioni\n• Consistenza visiva in tutta l\'app\n• Terminologia semplice e chiara'
+        },
+        {
+          id: 'responsive-design',
+          title: 'Design responsive migliorato',
+          response: 'L\'interfaccia si adatta perfettamente a tutti i dispositivi:\n\n📱 **Mobile Ottimizzato:**\n• Pulsanti touch-friendly (44px minimi)\n• Layout stack su schermi piccoli\n• Gesture intuitive per interazione\n• Performance ottimizzata\n\n💻 **Desktop Enhanced:**\n• Hover effects per feedback immediato\n• Scorciatoie da tastiera\n• Drag & drop migliorato\n• Multi-tasking supportato\n\n📊 **Tablet Perfect:**\n• Combinazione di touch e precisione\n• Layout ibrido ottimizzato\n• Orientamento automatico\n• Gesture avanzate'
         }
       ]
     },

@@ -34,7 +34,10 @@ import {
   Video,
   Mic,
   Eye,
-  ChevronRight
+  ChevronRight,
+  MessageSquare,
+  Upload,
+  Sparkles
 } from 'lucide-react';
 
 interface PlatformGuideModalProps {
@@ -222,58 +225,39 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Camera className="w-4 h-4 text-primary" />
-                Tipi di Analisi Disponibili
+                Modalità di Analisi Avanzate
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-3 border rounded-lg">
-                  <Camera className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <h4 className="font-medium">Foto</h4>
-                  <p className="text-xs text-muted-foreground">Analisi AI di espressioni e postura del tuo pet</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="text-center p-4 border rounded-lg bg-indigo/5 border-indigo/20">
+                  <MessageSquare className="w-8 h-8 mx-auto mb-2 text-indigo-700" />
+                  <h4 className="font-medium text-indigo-700">🧠 Analisi Testuale</h4>
+                  <p className="text-xs text-muted-foreground">Scrivi descrizioni comportamentali per analisi NLP avanzata (max 2K caratteri)</p>
                 </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <Video className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <h4 className="font-medium">Video</h4>
-                  <p className="text-xs text-muted-foreground">Registra video per analizzare movimento e comportamenti</p>
+                <div className="text-center p-4 border rounded-lg bg-pink/5 border-pink/20">
+                  <Camera className="w-8 h-8 mx-auto mb-2 text-pink-700" />
+                  <h4 className="font-medium text-pink-700">📸 Analisi Foto</h4>
+                  <p className="text-xs text-muted-foreground">Scatta o carica foto per analisi di espressioni e postura (max 10MB)</p>
                 </div>
-                <div className="text-center p-3 border rounded-lg">
-                  <Mic className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <h4 className="font-medium">Audio</h4>
-                  <p className="text-xs text-muted-foreground">Analizza vocalizzazioni e suoni del tuo pet</p>
+                <div className="text-center p-4 border rounded-lg bg-purple/5 border-purple/20">
+                  <Video className="w-8 h-8 mx-auto mb-2 text-purple-700" />
+                  <h4 className="font-medium text-purple-700">🎬 Analisi Video</h4>
+                  <p className="text-xs text-muted-foreground">Registra video per analisi di movimento e comportamenti dinamici (max 5min)</p>
+                </div>
+                <div className="text-center p-4 border rounded-lg bg-orange/5 border-orange/20">
+                  <Mic className="w-8 h-8 mx-auto mb-2 text-orange-700" />
+                  <h4 className="font-medium text-orange-700">🎙️ Analisi Audio</h4>
+                  <p className="text-xs text-muted-foreground">Registra o carica audio per analisi di vocalizzazioni e tono (max 5min)</p>
                 </div>
               </div>
               
-              <div className="text-center p-3 border rounded-lg bg-accent/10">
-                <FileText className="w-8 h-8 mx-auto mb-2 text-accent" />
-                <h4 className="font-medium">Analisi Testuale</h4>
-                <p className="text-xs text-muted-foreground">Inserisci descrizioni comportamentali per analisi NLP</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
-                Risultati e Cronologia
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <h4 className="font-medium">Informazioni rilevate:</h4>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• <strong>Emozione primaria:</strong> con percentuale di confidenza</li>
-                  <li>• <strong>Emozioni secondarie:</strong> stati emotivi aggiuntivi</li>
-                  <li>• <strong>Raccomandazioni:</strong> suggerimenti personalizzati</li>
-                  <li>• <strong>Trigger identificati:</strong> possibili cause del comportamento</li>
-                </ul>
-              </div>
-              
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <p className="text-sm">
-                  <strong>📊 Cronologia:</strong> Tutte le analisi vengono salvate e puoi esportarle in PDF per consultazioni veterinarie.
-                </p>
+              <div className="p-4 bg-coral/5 border rounded-lg border-coral/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Upload className="w-4 h-4 text-coral" />
+                  <h4 className="font-medium text-coral">📊 Analisi Multimediale</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">Carica più file contemporaneamente per analisi combinate e più accurate</p>
               </div>
             </CardContent>
           </Card>
@@ -282,16 +266,79 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Zap className="w-4 h-4" />
-                Funzioni Avanzate
+                Interfaccia Colorata e Intuitiva
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-3">
+                Ogni modalità di analisi ha un colore distintivo per facilità d'uso:
+              </p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-indigo-700 rounded"></div>
+                  <span>Testo → Indigo (NLP avanzato)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-pink-700 rounded"></div>
+                  <span>Foto → Rosa (Computer Vision)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-purple-700 rounded"></div>
+                  <span>Video → Viola (Analisi dinamica)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-orange-700 rounded"></div>
+                  <span>Audio → Arancione (Riconoscimento audio)</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Risultati e Cronologia Avanzata
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                <h4 className="font-medium">Informazioni dettagliate rilevate:</h4>
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• <strong>Emozione primaria:</strong> Con percentuale di confidenza 85-98%</li>
+                  <li>• <strong>Emozioni secondarie:</strong> Stati emotivi aggiuntivi rilevati</li>
+                  <li>• <strong>Insights comportamentali:</strong> Analisi dettagliata dei pattern</li>
+                  <li>• <strong>Raccomandazioni AI:</strong> Suggerimenti personalizzati specifici</li>
+                  <li>• <strong>Trigger identificati:</strong> Possibili cause scatenanti del comportamento</li>
+                  <li>• <strong>Contesto ambientale:</strong> Integrazione con dati meteo quando possibile</li>
+                </ul>
+              </div>
+              
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <p className="text-sm">
+                  <strong>📊 Cronologia Avanzata:</strong> Filtri per tipo, emozione, confidenza e date. Export PDF per veterinari. Comparazione tra analisi multiple.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Funzioni Premium e AI Avanzate
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <ul className="space-y-1 text-sm">
-                <li>• Previsore meteo-umore basato su condizioni atmosferiche</li>
-                <li>• Elaborazione del linguaggio naturale per descrizioni</li>
-                <li>• Computer vision per analisi automatica delle immagini</li>
-                <li>• Filtri e ricerca nella cronologia delle analisi</li>
-                <li>• Esportazione PDF per condivisione con veterinari</li>
+                <li>• <strong>Previsore Meteo-Umore:</strong> Correlazioni comportamento-clima</li>
+                <li>• <strong>Elaborazione NLP:</strong> Analisi semantica delle descrizioni</li>
+                <li>• <strong>Computer Vision Avanzata:</strong> Riconoscimento micro-espressioni</li>
+                <li>• <strong>Analisi Audio ML:</strong> Riconoscimento tono, pitch e intensità</li>
+                <li>• <strong>Filtri Intelligenti:</strong> Ricerca avanzata nella cronologia</li>
+                <li>• <strong>Export Veterinario:</strong> Report PDF professionale per consultazioni</li>
+                <li>• <strong>Analisi Comparative:</strong> Confronto progressi nel tempo</li>
+                <li>• <strong>Auto-analisi:</strong> Elaborazione automatica per alcuni tipi di file</li>
               </ul>
             </CardContent>
           </Card>

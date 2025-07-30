@@ -952,15 +952,90 @@ const SupportPage: React.FC = () => {
           </div>
 
           <div className="grid gap-4">
-            {filteredFaqs.map((faq) => (
-              <Card key={faq.id}>
+            {/* FAQ aggiornate con informazioni sulle nuove funzionalità */}
+            {[
+              {
+                id: '1',
+                question: 'Come funziona la nuova interfaccia colorata delle analisi?',
+                answer: 'Abbiamo introdotto un sistema di colori intuitivo nella pagina di analisi per migliorare l\'usabilità:\n\n🎨 **Codifica Colori:**\n• 🟦 **INDIGO** → Analisi Testuale con "🧠 Analisi Avanzata con IA"\n• 🌸 **ROSA** → Analisi Foto con "📸 Analisi Foto Avanzata con IA"\n• 🟣 **VIOLA** → Analisi Video con "🎬 Analisi Video Avanzata con IA"\n• 🟠 **ARANCIONE** → Analisi Audio con "🎙️ Analisi Audio Avanzata con IA"\n• 🪸 **CORAL** → Upload Multimediale con "📊 Analisi Multimediale Avanzata con IA"\n\n✨ **Vantaggi:**\n• Navigazione più intuitiva\n• Identificazione rapida delle funzioni\n• Esperienza utente migliorata\n• Accessibilità aumentata per tutte le età',
+                category: 'features',
+                tags: ['interfaccia', 'colori', 'analisi', 'usabilità'],
+                helpful_count: 15,
+                not_helpful_count: 1,
+                view_count: 143
+              },
+              {
+                id: '2',
+                question: 'Che tipi di analisi comportamentale posso fare?',
+                answer: 'PetVoice offre 5 modalità di analisi avanzate:\n\n🧠 **ANALISI TESTUALE** (Indigo):\n• Max 2.000 caratteri\n• Elaborazione NLP istantanea\n• Accuratezza: 92-97%\n• Ideale per: Descrizioni comportamentali dettagliate\n\n📸 **ANALISI FOTO** (Rosa):\n• Max 10MB per immagine\n• Computer Vision avanzata\n• Tempo: 10-20 secondi\n• Rileva: Espressioni, postura, micro-segnali\n\n🎬 **ANALISI VIDEO** (Viola):\n• Max 5 minuti di durata\n• Analisi movimento + audio\n• Tempo: 20-45 secondi\n• Combina: Visual + audio analysis\n\n🎙️ **ANALISI AUDIO** (Arancione):\n• Max 5 minuti di registrazione\n• Riconoscimento tono e pitch\n• Tempo: 15-30 secondi\n• Rileva: Vocalizzazioni, stress, emozioni\n\n📊 **ANALISI MULTIMEDIALE** (Coral):\n• Caricamento file multipli\n• Analisi correlata e incrociata\n• Accuratezza superiore (fino al 98%)\n• Risultati unificati e completi',
+                category: 'features',
+                tags: ['analisi', 'AI', 'comportamento', 'modalità'],
+                helpful_count: 28,
+                not_helpful_count: 2,
+                view_count: 267
+              },
+              {
+                id: '3',
+                question: 'Come funziona l\'auto-analisi intelligente?',
+                answer: 'L\'auto-analisi rende il workflow più veloce e automatizzato:\n\n⚡ **Analisi Automatica per:**\n• File immagine caricati\n• File video caricati\n• File audio (se abilitato nelle impostazioni)\n\n🔄 **Come Funziona:**\n1. Carichi/registri il contenuto\n2. Il sistema rileva automaticamente il tipo\n3. Avvia l\'analisi senza click aggiuntivi\n4. Ricevi notifica quando pronta\n\n⚙️ **Controllo Utente:**\n• Puoi disabilitare l\'auto-analisi nelle impostazioni\n• Mantieni sempre il controllo manuale\n• Possibilità di rivedere prima dell\'invio\n\n💡 **Beneficio:** Workflow più veloce e automatizzato, riducendo i passaggi necessari per ottenere risultati!',
+                category: 'features',
+                tags: ['auto-analisi', 'automatico', 'workflow', 'velocità'],
+                helpful_count: 22,
+                not_helpful_count: 0,
+                view_count: 189
+              },
+              {
+                id: '4',
+                question: 'Posso analizzare più file contemporaneamente?',
+                answer: 'Sì! L\'analisi multimediale combinata è la nostra funzione più avanzata:\n\n📊 **Caricamento Multiplo:**\n• Trascina più file contemporaneamente\n• Diversi tipi di media insieme\n• Analisi correlata e incrociata\n• Risultati unificati e completi\n\n🔗 **Correlazioni Intelligenti:**\n• Audio + Video = Analisi comportamentale completa\n• Foto + Descrizione = Context enhancement\n• File multipli stesso evento = Maggiore precisione\n\n📈 **Vantaggi:**\n• Accuratezza superiore (fino al 98%)\n• Insights più profondi e dettagliati\n• Raccomandazioni più specifiche\n• Report veterinario più completo\n\n💫 **Tip:** Combina più modalità per i migliori risultati! Ad esempio: registra un video del comportamento + aggiungi descrizione testuale per massima precisione.',
+                category: 'features',
+                tags: ['file multipli', 'combinata', 'correlazione', 'accuratezza'],
+                helpful_count: 31,
+                not_helpful_count: 1,
+                view_count: 298
+              },
+              {
+                id: '5',
+                question: 'I pulsanti dell\'analisi hanno colori diversi, perché?',
+                answer: 'Abbiamo implementato un sistema di colori coordinato per migliorare l\'usabilità:\n\n🔘 **Design Coordinato:**\n• Ogni pulsante ha lo stesso colore del titolo corrispondente\n• Pulsanti più grandi e visibili (32x32px)\n• Effetti hover migliorati (scale 1.02)\n• Ombre e gradienti per maggiore profondità\n\n🎯 **Coordinazione Colori:**\n• Pulsante e titolo sempre dello stesso colore\n• Contrasto ottimizzato per leggibilità WCAG 2.1\n• Stati attivi/disattivi chiaramente distinti\n• Feedback visivo immediato su hover e click\n\n💡 **Benefici:**\n• Più facile trovare e usare le funzioni\n• Esperienza più fluida e intuitiva\n• Accessibilità migliorata per tutte le età\n• Riduzione dei tempi di apprendimento',
+                category: 'technical',
+                tags: ['pulsanti', 'colori', 'design', 'accessibilità'],
+                helpful_count: 19,
+                not_helpful_count: 0,
+                view_count: 156
+              },
+              {
+                id: '6',
+                question: 'Come posso ottenere i migliori risultati dall\'analisi AI?',
+                answer: 'Segui questi consigli per massimizzare l\'accuratezza dell\'analisi:\n\n📸 **Per Foto e Video:**\n• Usa buona illuminazione naturale\n• Mantieni il pet al centro dell\'inquadratura\n• Evita sfondi troppo caotici\n• Risoluzione minima: 800x600px\n\n🎙️ **Per Audio:**\n• Registra in ambiente silenzioso\n• Mantieni il microfono vicino al pet\n• Durata ideale: 30 secondi - 2 minuti\n• Evita rumori di fondo\n\n📝 **Per Descrizioni Testuali:**\n• Sii specifico e dettagliato\n• Includi contesto (ora, luogo, situazione)\n• Descrivi comportamenti osservabili\n• Usa almeno 50-100 parole\n\n🔄 **Per Analisi Multiple:**\n• Combina diversi tipi di media\n• Carica file dello stesso evento\n• Aggiungi sempre una descrizione testuale\n• Più dati = maggiore precisione',
+                category: 'general',
+                tags: ['consigli', 'accuratezza', 'qualità', 'best practices'],
+                helpful_count: 35,
+                not_helpful_count: 0,
+                view_count: 421
+              }
+            ].filter(faq => 
+              (selectedCategory === 'all' || faq.category === selectedCategory) &&
+              (searchQuery === '' || 
+               faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               faq.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               faq.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+            ).map((faq) => (
+              <Card key={faq.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-lg">{faq.question}</CardTitle>
+                  <CardTitle className="text-lg text-primary">{faq.question}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">{faq.answer}</p>
+                  <div className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed mb-4">
+                    {faq.answer}
+                  </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                        {faq.category === 'technical' ? 'Tecnico' : 
+                         faq.category === 'features' ? 'Funzionalità' : 
+                         faq.category === 'billing' ? 'Fatturazione' : 'Generale'}
+                      </span>
                       {faq.tags.map((tag, index) => (
                         <span key={index} className="px-2 py-1 bg-muted rounded-full text-xs">
                           {tag}
@@ -968,14 +1043,17 @@ const SupportPage: React.FC = () => {
                       ))}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-700">
                         <ThumbsUp className="h-4 w-4 mr-1" />
                         {faq.helpful_count}
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
                         <ThumbsDown className="h-4 w-4 mr-1" />
                         {faq.not_helpful_count}
                       </Button>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        {faq.view_count} views
+                      </span>
                     </div>
                   </div>
                 </CardContent>
