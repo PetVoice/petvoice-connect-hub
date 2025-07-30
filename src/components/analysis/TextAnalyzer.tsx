@@ -152,7 +152,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
               disabled={isProcessing}
               variant="ghost"
               className={cn(
-                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-orange-700 hover:!bg-orange-800 hover:scale-105 shadow-lg",
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-indigo-700 hover:!bg-indigo-800 hover:scale-105 shadow-lg",
                 isProcessing && "!bg-red-500 hover:!bg-red-600 animate-pulse"
               )}
             >
