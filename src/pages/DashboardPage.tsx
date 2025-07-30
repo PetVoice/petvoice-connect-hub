@@ -2755,8 +2755,13 @@ const DashboardPage: React.FC = () => {
       <Dialog open={vitalModal.open} onOpenChange={(open) => setVitalModal(prev => ({ ...prev, open }))}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {vitalModal.mode === 'add' ? 'Aggiungi Parametro Vitale' : 'Modifica Parametro Vitale'}
+            <DialogTitle className="text-2xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg">
+                <Activity className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-cyan-800">
+                {vitalModal.mode === 'add' ? 'Aggiungi Parametro Vitale' : 'Modifica Parametro Vitale'}
+              </span>
             </DialogTitle>
             <DialogDescription>
               Inserisci i dati del parametro vitale per il tuo pet.
@@ -2854,9 +2859,12 @@ const DashboardPage: React.FC = () => {
               />
             </div>
             <div className="flex gap-2 pt-4">
-              <Button onClick={handleVitalSubmit} className="flex-1">
+              <Button 
+                onClick={handleVitalSubmit} 
+                className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold"
+              >
                 <Save className="h-4 w-4 mr-2" />
-                {vitalModal.mode === 'add' ? 'Aggiungi' : 'Salva'}
+                {vitalModal.mode === 'add' ? 'Aggiungi Parametro' : 'Salva Parametro'}
               </Button>
               <Button 
                 variant="outline" 
