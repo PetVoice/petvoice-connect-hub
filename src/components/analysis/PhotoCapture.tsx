@@ -276,11 +276,10 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
             <Button
               onClick={isCapturing ? capturePhoto : captureState.hasPhoto ? retakePhoto : startCapture}
               disabled={permission === 'denied'}
+              variant="ghost"
               className={cn(
-                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
-                isCapturing
-                  ? "bg-blue-500 hover:bg-blue-600 shadow-lg"
-                  : "bg-pink-500 hover:bg-pink-600 hover:scale-105 shadow-lg"
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-orange-700 hover:!bg-orange-800 hover:scale-105 shadow-lg",
+                isCapturing && "!bg-red-500 hover:!bg-red-600"
               )}
             >
               <Camera className="h-8 w-8" />

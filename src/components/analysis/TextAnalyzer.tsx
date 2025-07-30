@@ -150,11 +150,10 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
             <Button
               onClick={handleIconClick}
               disabled={isProcessing}
+              variant="ghost"
               className={cn(
-                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
-                isProcessing
-                  ? "bg-blue-500 hover:bg-blue-600 shadow-lg animate-pulse"
-                  : "bg-indigo-500 hover:bg-indigo-600 hover:scale-105 shadow-lg"
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-orange-700 hover:!bg-orange-800 hover:scale-105 shadow-lg",
+                isProcessing && "!bg-red-500 hover:!bg-red-600 animate-pulse"
               )}
             >
               {isProcessing ? (

@@ -332,10 +332,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             </div>
 
             {validFiles.length > 0 && !shouldHideAnalysisButton && (
-              <Button 
+               <Button 
                 onClick={handleStartAnalysis}
                 disabled={isProcessing || hasErrors}
-                className="w-full bg-coral hover:bg-coral/90 text-white"
+                variant="ghost"
+                className="w-full !bg-orange-700 hover:!bg-orange-800 text-white"
               >
                 {isProcessing ? (
                   <>
