@@ -396,6 +396,9 @@ const DashboardPage: React.FC = () => {
         }
         setEmotionStats(emotionCounts);
 
+        // Save analyses to state for click handlers
+        setPetAnalyses(analyses || []);
+
         // Save data to states
         setMedicalEvents(medicalEvents || []);
         setDiaryEntriesData(diaryEntries || []);
