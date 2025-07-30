@@ -182,33 +182,96 @@ export const AdaptiveIntelligenceProvider: React.FC<{ children: React.ReactNode 
     const context = generateAdaptationContext();
     const newInsights: AdaptiveInsight[] = [];
 
-    // Dashboard insights
+    // Dashboard insights - SOGLIE MODIFICATE per mostrare più insights
     if (!category || category === 'dashboard') {
-      if (state.emotionalDNA.energia < 40) {
+      if (state.emotionalDNA.energia < 60) { // Era 40, ora 60
         newInsights.push({
           id: `insight-energy-${Date.now()}`,
           type: 'recommendation',
           category: 'dashboard',
-          title: 'Bassa energia rilevata',
-          description: `${selectedPet.name} mostra livelli di energia bassi (${state.emotionalDNA.energia}%). Considera attività stimolanti.`,
+          title: 'Energia moderata rilevata',
+          description: `${selectedPet.name} mostra livelli di energia moderati (${state.emotionalDNA.energia}%). Considera attività stimolanti.`,
           actionable: true,
           priority: 'medium',
           confidence: 0.8,
           data: { suggestedActivities: ['gioco', 'passeggiata', 'training'] }
         });
+      } else if (state.emotionalDNA.energia > 80) { // NUOVO: Alta energia
+        newInsights.push({
+          id: `insight-high-energy-${Date.now()}`,
+          type: 'suggestion',
+          category: 'dashboard',
+          title: 'Alta energia rilevata',
+          description: `${selectedPet.name} ha molta energia (${state.emotionalDNA.energia}%). Ottimo momento per attività intense!`,
+          actionable: true,
+          priority: 'low',
+          confidence: 0.9,
+          data: { suggestedActivities: ['corsa', 'giochi intensi', 'addestramento avanzato'] }
+        });
       }
 
-      if (state.emotionalDNA.calma < 40) {
+      if (state.emotionalDNA.calma < 60) { // Era 40, ora 60
         newInsights.push({
           id: `insight-stress-${Date.now()}`,
           type: 'warning',
           category: 'dashboard',
-          title: 'Livelli di stress elevati',
-          description: `${selectedPet.name} sembra stressato. La musicoterapia potrebbe aiutare.`,
+          title: 'Livelli di stress moderati',
+          description: `${selectedPet.name} potrebbe beneficiare di attività rilassanti. La musicoterapia potrebbe aiutare.`,
           actionable: true,
-          priority: 'high',
-          confidence: 0.9,
+          priority: 'medium',
+          confidence: 0.8,
           data: { recommendedAction: 'music_therapy' }
+        });
+      } else if (state.emotionalDNA.calma > 85) { // NUOVO: Alta calma
+        newInsights.push({
+          id: `insight-very-calm-${Date.now()}`,
+          type: 'optimization',
+          category: 'dashboard',
+          title: 'Ottimo stato di calma',
+          description: `${selectedPet.name} è molto sereno (${state.emotionalDNA.calma}%). Perfetto per nuovi apprendimenti!`,
+          actionable: true,
+          priority: 'low',
+          confidence: 0.9,
+          data: { recommendedAction: 'new_training' }
+        });
+      }
+
+      if (state.emotionalDNA.focus > 85) { // NUOVO: Alto focus
+        newInsights.push({
+          id: `insight-high-focus-${Date.now()}`,
+          type: 'optimization',
+          category: 'dashboard',
+          title: 'Focus eccellente',
+          description: `${selectedPet.name} è molto concentrato (${state.emotionalDNA.focus}%). Momento ideale per training complessi!`,
+          actionable: true,
+          priority: 'low',
+          confidence: 0.9,
+          data: { recommendedAction: 'advanced_training' }
+        });
+      } else if (state.emotionalDNA.focus < 60) { // Era 50, ora 60
+        newInsights.push({
+          id: `insight-low-focus-${Date.now()}`,
+          type: 'suggestion',
+          category: 'dashboard',
+          title: 'Focus da migliorare',
+          description: `${selectedPet.name} potrebbe essere distratto. Prova sessioni brevi e frequenti.`,
+          actionable: true,
+          priority: 'medium',
+          confidence: 0.7,
+        });
+      }
+
+      // Insight basato sui dati disponibili
+      if (state.emotionalDNA.confidence > 0.7) {
+        newInsights.push({
+          id: `insight-data-quality-${Date.now()}`,
+          type: 'optimization',
+          category: 'dashboard',
+          title: 'Profilo comportamentale completo',
+          description: `Abbiamo dati sufficienti per analisi accurate (${Math.round(state.emotionalDNA.confidence * 100)}% confidenza).`,
+          actionable: false,
+          priority: 'low',
+          confidence: state.emotionalDNA.confidence,
         });
       }
     }
