@@ -1602,11 +1602,10 @@ const DashboardPage: React.FC = () => {
         
         {/* Pet Gallery - Lazy Loading Demo */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 max-w-4xl mx-auto">
-          <LazyImage
+          <img
             src="https://images.unsplash.com/photo-1552053110-0b6e75d24dba?w=400&h=400&fit=crop"
             alt="Golden Retriever"
             className="w-full h-32 rounded-lg object-cover"
-            containerClassName="bg-muted rounded-lg overflow-hidden"
           />
           <LazyImage
             src="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop"
