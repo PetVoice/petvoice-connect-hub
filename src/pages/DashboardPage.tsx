@@ -821,7 +821,7 @@ const DashboardPage: React.FC = () => {
             const vitalTypeMapping = {
               'temperatura': 'temperature',
               'frequenza_cardiaca': 'heart_rate',
-              'respirazione': 'breathing_rate',
+              'respirazione': 'respiration',
               'colore_gengive': 'gum_color'
             };
 
