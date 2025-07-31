@@ -65,7 +65,7 @@ async function submitFeedback(supabase: any, params: any) {
   if (error) throw error;
 
   // Aggiorna metriche del modello
-  await updateModelMetrics(supabase, predictionType, accuracyScore);
+  await updateModelMetrics(supabase, predictionType, userId, accuracyScore);
 
   return new Response(
     JSON.stringify({ success: true, accuracy_score: accuracyScore }),
@@ -100,43 +100,25 @@ async function detectPatterns(supabase: any, params: any) {
 }
 
 async function retrainModel(supabase: any, params: any) {
-  const { modelType } = params;
+  const { modelType, userId } = params;
 
-  // Inizia sessione di training
-  const { data: session } = await supabase
-    .from('model_training_sessions')
-    .insert({
-      model_type: modelType,
-      training_data_count: 0,
-      status: 'running'
-    })
-    .select()
-    .single();
-
+  // Simula il training (in un'implementazione reale useresti un servizio ML)
+  const performanceBefore = await calculateCurrentModelPerformance(supabase, modelType);
+  
   // Recupera feedback per il training
   const { data: feedbackData } = await supabase
     .from('prediction_feedback')
     .select('*')
     .eq('prediction_type', modelType)
+    .eq('user_id', userId)
     .not('actual_value', 'is', null)
     .order('created_at', { ascending: false })
-    .limit(1000);
+    .limit(100);
 
-  if (!feedbackData || feedbackData.length < 10) {
-    await supabase
-      .from('model_training_sessions')
-      .update({ 
-        status: 'failed',
-        completed_at: new Date().toISOString()
-      })
-      .eq('id', session.id);
-
-    throw new Error('Dati insufficienti per il training');
+  if (!feedbackData || feedbackData.length < 5) {
+    throw new Error('Dati insufficienti per il training (minimo 5 feedback)');
   }
 
-  // Simula il training (in un'implementazione reale useresti un servizio ML)
-  const performanceBefore = await calculateCurrentModelPerformance(supabase, modelType);
-  
   // Simula miglioramenti basati sui feedback
   const performanceAfter = {
     accuracy: Math.min(0.95, performanceBefore.accuracy + 0.05),
@@ -151,52 +133,41 @@ async function retrainModel(supabase: any, params: any) {
     training_samples: feedbackData.length
   };
 
-  // Aggiorna sessione di training
-  await supabase
-    .from('model_training_sessions')
-    .update({
-      training_data_count: feedbackData.length,
-      performance_before: performanceBefore,
-      performance_after: performanceAfter,
-      improvements: improvements,
-      training_duration_seconds: 120, // Simulated
-      status: 'completed',
-      completed_at: new Date().toISOString()
-    })
-    .eq('id', session.id);
-
-  // Aggiorna metriche del modello
-  const newVersion = `v${Date.now()}`;
+  // Aggiorna metriche del modello con schema corretto
+  const today = new Date().toISOString().split('T')[0];
   await Promise.all([
     supabase.from('ml_model_metrics').insert({
+      user_id: userId,
       model_type: modelType,
-      metric_name: 'accuracy',
+      metric_type: 'accuracy',
       metric_value: performanceAfter.accuracy,
-      data_points_count: feedbackData.length,
-      model_version: newVersion
+      sample_count: feedbackData.length,
+      metric_date: today
     }),
     supabase.from('ml_model_metrics').insert({
+      user_id: userId,
       model_type: modelType,
-      metric_name: 'precision',
+      metric_type: 'precision',
       metric_value: performanceAfter.precision,
-      data_points_count: feedbackData.length,
-      model_version: newVersion
+      sample_count: feedbackData.length,
+      metric_date: today
     }),
     supabase.from('ml_model_metrics').insert({
+      user_id: userId,
       model_type: modelType,
-      metric_name: 'recall',
+      metric_type: 'recall',
       metric_value: performanceAfter.recall,
-      data_points_count: feedbackData.length,
-      model_version: newVersion
+      sample_count: feedbackData.length,
+      metric_date: today
     })
   ]);
 
   return new Response(
     JSON.stringify({ 
-      session_id: session.id,
       improvements,
-      new_version: newVersion,
-      training_data_count: feedbackData.length
+      training_data_count: feedbackData.length,
+      performance_before: performanceBefore,
+      performance_after: performanceAfter
     }),
     { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
   );
@@ -237,7 +208,7 @@ async function getLearningInsights(supabase: any, params: any) {
   const insights = {
     model_performance: metrics?.reduce((acc, m) => {
       acc[m.model_type] = acc[m.model_type] || {};
-      acc[m.model_type][m.metric_name] = m.metric_value;
+      acc[m.model_type][m.metric_type] = m.metric_value;
       return acc;
     }, {}),
     user_patterns: patterns,
@@ -273,28 +244,30 @@ function calculateSimilarityScore(predicted: string, actual: string): number {
   return 0.2;
 }
 
-async function updateModelMetrics(supabase: any, modelType: string, accuracyScore: number) {
+async function updateModelMetrics(supabase: any, modelType: string, userId: string, accuracyScore: number) {
   const today = new Date().toISOString().split('T')[0];
   
   // Recupera o crea metrica giornaliera
   const { data: existingMetric } = await supabase
     .from('ml_model_metrics')
     .select('*')
+    .eq('user_id', userId)
     .eq('model_type', modelType)
-    .eq('metric_name', 'accuracy')
-    .eq('evaluation_date', today)
-    .single();
+    .eq('metric_type', 'accuracy')
+    .eq('metric_date', today)
+    .maybeSingle();
 
   if (existingMetric) {
     // Aggiorna metrica esistente
-    const newCount = existingMetric.data_points_count + 1;
-    const newValue = ((existingMetric.metric_value * existingMetric.data_points_count) + accuracyScore) / newCount;
+    const newCount = existingMetric.sample_count + 1;
+    const newValue = ((existingMetric.metric_value * existingMetric.sample_count) + accuracyScore) / newCount;
     
     await supabase
       .from('ml_model_metrics')
       .update({
         metric_value: newValue,
-        data_points_count: newCount
+        sample_count: newCount,
+        updated_at: new Date().toISOString()
       })
       .eq('id', existingMetric.id);
   } else {
@@ -302,11 +275,12 @@ async function updateModelMetrics(supabase: any, modelType: string, accuracyScor
     await supabase
       .from('ml_model_metrics')
       .insert({
+        user_id: userId,
         model_type: modelType,
-        metric_name: 'accuracy',
+        metric_type: 'accuracy',
         metric_value: accuracyScore,
-        data_points_count: 1,
-        evaluation_date: today
+        sample_count: 1,
+        metric_date: today
       });
   }
 }
