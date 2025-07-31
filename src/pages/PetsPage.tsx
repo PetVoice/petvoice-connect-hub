@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { PetAvatarUpload } from '@/components/settings/PetAvatarUpload';
 import { 
   Plus, 
   Edit, 
@@ -165,7 +166,7 @@ const getGenderClasses = (gender: string) => {
 
 const PetsPage: React.FC = () => {
   const { user } = useAuth();
-  const { pets, loading, updatePet, deletePet, addPet } = usePets();
+  const { pets, loading, updatePet, deletePet, addPet, refreshPets } = usePets();
   const navigate = useNavigate();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const { addNotification } = useNotifications();
@@ -689,12 +690,13 @@ const PetsPage: React.FC = () => {
             <Card key={pet.id} className={`petvoice-card ${getGenderClasses(pet.gender || 'unknown')}`}>
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={pet.avatar_url || undefined} />
-                    <AvatarFallback className="text-2xl">
-                      {getPetEmoji(pet.type)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <PetAvatarUpload 
+                    pet={pet}
+                    onAvatarChange={(url) => {
+                      // Aggiorna il pet localmente e ricarica la lista
+                      refreshPets();
+                    }}
+                  />
                   <div className="flex-1">
                     <CardTitle className="text-lg">{pet.name}</CardTitle>
                      <CardDescription>
