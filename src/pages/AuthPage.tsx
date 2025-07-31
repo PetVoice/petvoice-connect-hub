@@ -23,6 +23,7 @@ const AuthPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('login');
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
 
   const { user, signIn, signUp, resetPassword } = useAuth();
   const { theme, setTheme } = useTheme();
@@ -332,7 +333,7 @@ const AuthPage: React.FC = () => {
               </Button>
               
               <Button onClick={() => setAuthModalOpen(true)} className="hidden md:flex">
-                Inizia Gratis
+                Prova Ora
               </Button>
 
               {/* Mobile Menu Toggle */}
@@ -354,7 +355,7 @@ const AuthPage: React.FC = () => {
               <a href="#how-it-works" className="block text-foreground/80 hover:text-azure transition-colors">Come Funziona</a>
               <a href="#testimonials" className="block text-foreground/80 hover:text-azure transition-colors">Testimonianze</a>
               <Button onClick={() => setAuthModalOpen(true)} className="w-full mt-4">
-                Inizia Gratis
+                Prova Ora
               </Button>
             </div>
           )}
@@ -385,17 +386,18 @@ const AuthPage: React.FC = () => {
                 className="text-lg px-8 py-4 h-auto group"
                 onClick={() => setAuthModalOpen(true)}
               >
-                Inizia Gratuitamente
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="text-lg px-8 py-4 h-auto bg-white/10 border-white/30 text-white hover:bg-white/20"
-              >
-                <Play className="mr-2 h-5 w-5" />
-                Guarda Demo
-              </Button>
+                 Prova Ora
+                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+               </Button>
+               <Button 
+                 variant="outline" 
+                 size="lg" 
+                 className="text-lg px-8 py-4 h-auto bg-white/10 border-white/30 text-white hover:bg-white/20"
+                 onClick={() => setDemoModalOpen(true)}
+               >
+                 <Play className="mr-2 h-5 w-5" />
+                 Guarda Demo
+               </Button>
             </div>
 
             {/* Stats */}
@@ -525,7 +527,7 @@ const AuthPage: React.FC = () => {
             className="text-lg px-8 py-4 h-auto bg-white text-azure hover:bg-white/90"
             onClick={() => setAuthModalOpen(true)}
           >
-            Inizia Gratuitamente Oggi
+            Prova Ora - Trial Gratuito
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
@@ -558,6 +560,157 @@ const AuthPage: React.FC = () => {
 
       {/* Auth Modal */}
       <AuthModal />
+
+      {/* Demo Modal */}
+      <Dialog open={demoModalOpen} onOpenChange={setDemoModalOpen}>
+        <DialogContent className="max-w-4xl bg-card/95 backdrop-blur-md border-azure/20">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+              Demo Interattiva PetVoice
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Step 1: Registra Pet */}
+            <Card className="border-azure/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full gradient-azure flex items-center justify-center text-white font-bold text-sm">1</div>
+                  Registra il tuo Pet
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="bg-secondary/50 p-4 rounded-lg">
+                      <h4 className="font-semibold mb-2">Informazioni Base</h4>
+                      <p className="text-sm text-muted-foreground">📝 Nome: Luna</p>
+                      <p className="text-sm text-muted-foreground">🐕 Tipo: Cane</p>
+                      <p className="text-sm text-muted-foreground">🎂 Età: 3 anni</p>
+                      <p className="text-sm text-muted-foreground">⚖️ Peso: 25kg</p>
+                    </div>
+                  </div>
+                  <div className="bg-secondary/50 p-4 rounded-lg text-center">
+                    <div className="w-24 h-24 mx-auto rounded-full bg-azure/20 flex items-center justify-center mb-2">
+                      <span className="text-2xl">🐕</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Foto del profilo caricata</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 2: Cattura Momento */}
+            <Card className="border-azure/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full gradient-azure flex items-center justify-center text-white font-bold text-sm">2</div>
+                  Cattura i Momenti
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-secondary/50 p-4 rounded-lg text-center">
+                    <MessageSquare className="w-8 h-8 mx-auto mb-2 text-azure" />
+                    <h4 className="font-semibold mb-1">Audio</h4>
+                    <p className="text-xs text-muted-foreground">Abbaiare mattutino registrato</p>
+                    <div className="mt-2 bg-azure/20 rounded-full h-2">
+                      <div className="bg-azure h-2 rounded-full w-3/4"></div>
+                    </div>
+                  </div>
+                  <div className="bg-secondary/50 p-4 rounded-lg text-center">
+                    <Play className="w-8 h-8 mx-auto mb-2 text-azure" />
+                    <h4 className="font-semibold mb-1">Video</h4>
+                    <p className="text-xs text-muted-foreground">Comportamento durante il gioco</p>
+                    <div className="mt-2 w-full h-16 bg-azure/10 rounded flex items-center justify-center">
+                      <Play className="w-6 h-6 text-azure" />
+                    </div>
+                  </div>
+                  <div className="bg-secondary/50 p-4 rounded-lg text-center">
+                    <Heart className="w-8 h-8 mx-auto mb-2 text-azure" />
+                    <h4 className="font-semibold mb-1">Foto</h4>
+                    <p className="text-xs text-muted-foreground">Espressione del momento</p>
+                    <div className="mt-2 w-full h-16 bg-azure/10 rounded flex items-center justify-center">
+                      <span className="text-2xl">📸</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 3: Analisi AI */}
+            <Card className="border-azure/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full gradient-azure flex items-center justify-center text-white font-bold text-sm">3</div>
+                  Analisi AI in Corso
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 border-2 border-azure border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm">Analizzando patterns vocali...</span>
+                    <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 border-2 border-azure border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm">Riconoscimento comportamentale...</span>
+                    <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 border-2 border-azure border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm">Generazione insights...</span>
+                    <div className="w-4 h-4 border-2 border-muted border-t-transparent rounded-full animate-spin ml-auto"></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Step 4: Risultati */}
+            <Card className="border-azure/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full gradient-azure flex items-center justify-center text-white font-bold text-sm">4</div>
+                  Report Completo
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="bg-green-500/10 border border-green-500/20 p-3 rounded-lg">
+                      <h4 className="font-semibold text-green-700 dark:text-green-400 mb-1">Stato Emotivo</h4>
+                      <p className="text-sm">😊 Felice e Giocoso (85%)</p>
+                    </div>
+                    <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
+                      <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-1">Livello di Energia</h4>
+                      <p className="text-sm">⚡ Alto (78%)</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="bg-orange-500/10 border border-orange-500/20 p-3 rounded-lg">
+                      <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-1">Raccomandazioni</h4>
+                      <p className="text-sm">🎾 Tempo di gioco ottimale</p>
+                      <p className="text-sm">🚶‍♀️ Passeggiate nel pomeriggio</p>
+                    </div>
+                    <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg">
+                      <h4 className="font-semibold text-purple-700 dark:text-purple-400 mb-1">Trend</h4>
+                      <p className="text-sm">📈 Miglioramento del 15%</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 text-center">
+                  <Button className="w-full md:w-auto" onClick={() => {setDemoModalOpen(false); setAuthModalOpen(true);}}>
+                    Inizia con il Tuo Pet
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
