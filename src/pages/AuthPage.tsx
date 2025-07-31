@@ -178,15 +178,42 @@ const AuthPage: React.FC = () => {
             </div>
           </form>
         ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login" className="transition-all duration-200">Accedi</TabsTrigger>
-              <TabsTrigger value="register" className="transition-all duration-200">Registrati</TabsTrigger>
-            </TabsList>
+          <div className="w-full">
+            {/* Custom Tab Switcher */}
+            <div className="flex w-full mb-6 bg-secondary/50 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab('login')}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                  activeTab === 'login'
+                    ? 'bg-azure text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Accedi
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('register')}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                  activeTab === 'register'
+                    ? 'bg-azure text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Registrati
+              </button>
+            </div>
             
-            <div className="h-[380px] relative overflow-hidden">
-              <TabsContent value="login" className="absolute inset-0 space-y-4 m-0 opacity-100 transition-all duration-300 ease-in-out data-[state=inactive]:opacity-0 data-[state=inactive]:translate-x-2">
-                <form onSubmit={handleLogin} className="space-y-4 h-full flex flex-col justify-between">
+            {/* Fixed Height Container */}
+            <div className="h-[340px] relative">
+              {/* Login Form */}
+              <div className={`absolute inset-0 transition-all duration-300 ease-in-out ${
+                activeTab === 'login' 
+                  ? 'opacity-100 translate-x-0' 
+                  : 'opacity-0 translate-x-4 pointer-events-none'
+              }`}>
+                <form onSubmit={handleLogin} className="space-y-4 h-full flex flex-col">
                   <div className="space-y-4 flex-1">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
@@ -228,7 +255,7 @@ const AuthPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 space-y-3">
+                  <div className="space-y-3">
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Accesso..." : "Accedi"}
                     </Button>
@@ -237,72 +264,77 @@ const AuthPage: React.FC = () => {
                     </Button>
                   </div>
                 </form>
-              </TabsContent>
-            
-            <TabsContent value="register" className="absolute inset-0 space-y-4 m-0 opacity-100 transition-all duration-300 ease-in-out data-[state=inactive]:opacity-0 data-[state=inactive]:translate-x-2">
-              <form onSubmit={handleSignUp} className="space-y-4 h-full flex flex-col justify-between">
-                <div className="space-y-4 flex-1">
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-name">Nome</Label>
-                    <Input
-                      id="reg-name"
-                      type="text"
-                      placeholder="Il tuo nome"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              </div>
+
+              {/* Register Form */}
+              <div className={`absolute inset-0 transition-all duration-300 ease-in-out ${
+                activeTab === 'register' 
+                  ? 'opacity-100 translate-x-0' 
+                  : 'opacity-0 -translate-x-4 pointer-events-none'
+              }`}>
+                <form onSubmit={handleSignUp} className="space-y-4 h-full flex flex-col">
+                  <div className="space-y-4 flex-1">
+                    <div className="space-y-2">
+                      <Label htmlFor="reg-name">Nome</Label>
                       <Input
-                        id="reg-email"
-                        type="email"
-                        placeholder="la-tua-email@esempio.com"
-                        value={registerEmail}
-                        onChange={(e) => setRegisterEmail(e.target.value)}
-                        className="pl-9"
+                        id="reg-name"
+                        type="text"
+                        placeholder="Il tuo nome"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
                         required
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="reg-password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Scegli una password sicura"
-                        value={registerPassword}
-                        onChange={(e) => setRegisterPassword(e.target.value)}
-                        className="pl-9 pr-12"
-                        required
-                        minLength={6}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-1 top-1 h-8 w-8"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="reg-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="reg-email"
+                          type="email"
+                          placeholder="la-tua-email@esempio.com"
+                          value={registerEmail}
+                          onChange={(e) => setRegisterEmail(e.target.value)}
+                          className="pl-9"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="reg-password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="reg-password"
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Scegli una password sicura"
+                          value={registerPassword}
+                          onChange={(e) => setRegisterPassword(e.target.value)}
+                          className="pl-9 pr-12"
+                          required
+                          minLength={6}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1 h-8 w-8"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Registrazione..." : "Crea Account"}
-                  </Button>
-                </div>
-              </form>
-            </TabsContent>
+                  <div className="space-y-3">
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? "Registrazione..." : "Crea Account"}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-        </Tabs>
         )}
       </DialogContent>
     </Dialog>
