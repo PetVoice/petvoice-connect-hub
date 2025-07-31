@@ -180,117 +180,125 @@ const AuthPage: React.FC = () => {
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login">Accedi</TabsTrigger>
-              <TabsTrigger value="register">Registrati</TabsTrigger>
+              <TabsTrigger value="login" className="transition-all duration-200">Accedi</TabsTrigger>
+              <TabsTrigger value="register" className="transition-all duration-200">Registrati</TabsTrigger>
             </TabsList>
             
-            <div className="min-h-[320px] transition-all duration-300 ease-in-out">
-              <TabsContent value="login" className="space-y-4 m-0">
-                <form onSubmit={handleLogin} className="space-y-4">
+            <div className="h-[380px] relative overflow-hidden">
+              <TabsContent value="login" className="absolute inset-0 space-y-4 m-0 opacity-100 transition-all duration-300 ease-in-out data-[state=inactive]:opacity-0 data-[state=inactive]:translate-x-2">
+                <form onSubmit={handleLogin} className="space-y-4 h-full flex flex-col justify-between">
+                  <div className="space-y-4 flex-1">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="la-tua-email@esempio.com"
+                          value={loginEmail}
+                          onChange={(e) => setLoginEmail(e.target.value)}
+                          className="pl-9"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="password"
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="La tua password"
+                          value={loginPassword}
+                          onChange={(e) => setLoginPassword(e.target.value)}
+                          className="pl-9 pr-12"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1 h-8 w-8"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 space-y-3">
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? "Accesso..." : "Accedi"}
+                    </Button>
+                    <Button type="button" variant="link" className="w-full text-sm" onClick={() => setResetMode(true)}>
+                      Password dimenticata?
+                    </Button>
+                  </div>
+                </form>
+              </TabsContent>
+            
+            <TabsContent value="register" className="absolute inset-0 space-y-4 m-0 opacity-100 transition-all duration-300 ease-in-out data-[state=inactive]:opacity-0 data-[state=inactive]:translate-x-2">
+              <form onSubmit={handleSignUp} className="space-y-4 h-full flex flex-col justify-between">
+                <div className="space-y-4 flex-1">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="reg-name">Nome</Label>
+                    <Input
+                      id="reg-name"
+                      type="text"
+                      placeholder="Il tuo nome"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-email">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
-                        id="email"
+                        id="reg-email"
                         type="email"
                         placeholder="la-tua-email@esempio.com"
-                        value={loginEmail}
-                        onChange={(e) => setLoginEmail(e.target.value)}
+                        value={registerEmail}
+                        onChange={(e) => setRegisterEmail(e.target.value)}
                         className="pl-9"
                         required
                       />
                     </div>
                   </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="La tua password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      className="pl-9 pr-12"
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-1 top-1 h-8 w-8"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="reg-password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Scegli una password sicura"
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
+                        className="pl-9 pr-12"
+                        required
+                        minLength={6}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-1 top-1 h-8 w-8"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Accesso..." : "Accedi"}
-                </Button>
-                <Button type="button" variant="link" className="w-full text-sm" onClick={() => setResetMode(true)}>
-                  Password dimenticata?
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="register" className="space-y-4">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="reg-name">Nome</Label>
-                  <Input
-                    id="reg-name"
-                    type="text"
-                    placeholder="Il tuo nome"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    required
-                  />
+                <div className="flex-shrink-0">
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Registrazione..." : "Crea Account"}
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="reg-email"
-                      type="email"
-                      placeholder="la-tua-email@esempio.com"
-                      value={registerEmail}
-                      onChange={(e) => setRegisterEmail(e.target.value)}
-                      className="pl-9"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="reg-password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Scegli una password sicura"
-                      value={registerPassword}
-                      onChange={(e) => setRegisterPassword(e.target.value)}
-                      className="pl-9 pr-12"
-                      required
-                      minLength={6}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-1 top-1 h-8 w-8"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Registrazione..." : "Crea Account"}
-                </Button>
               </form>
             </TabsContent>
           </div>
