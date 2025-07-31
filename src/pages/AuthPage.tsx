@@ -191,7 +191,7 @@ const AuthPage: React.FC = () => {
             </TabsList>
             
             <TabsContent value="login" className="space-y-4">
-              <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -239,16 +239,17 @@ const AuthPage: React.FC = () => {
                   </div>
                 </div>
                 <Button 
-                  type="submit" 
+                  type="button" 
                   className="w-full" 
                   disabled={loading}
+                  onClick={handleLogin}
                 >
                   {loading ? "Accesso..." : "Accedi"}
                 </Button>
                 <Button type="button" variant="link" className="w-full text-sm" onClick={() => setResetMode(true)}>
                   Password dimenticata?
                 </Button>
-              </form>
+              </div>
             </TabsContent>
             
             <TabsContent value="register" className="space-y-4">
