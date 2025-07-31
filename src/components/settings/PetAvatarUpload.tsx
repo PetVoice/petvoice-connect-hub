@@ -67,7 +67,29 @@ export const PetAvatarUpload: React.FC<PetAvatarUploadProps> = ({ pet, onAvatarC
     try {
       setUploading(true);
       
+      // Debug logging
+      console.log('🐾 DEBUG Pet Avatar Upload:', {
+        petId: pet.id,
+        petName: pet.name,
+        fileSize: file.size,
+        fileType: file.type
+      });
+      
+      // Verifica che il pet esista e appartenga all'utente
+      const { data: petCheck, error: petCheckError } = await supabase
+        .from('pets')
+        .select('id, user_id')
+        .eq('id', pet.id)
+        .single();
+      
+      console.log('🐾 Pet check result:', { petCheck, petCheckError });
+      
+      if (petCheckError || !petCheck) {
+        throw new Error('Pet non trovato nel database');
+      }
+      
       const fileName = `pets/${pet.id}/${Date.now()}.${file.name.split('.').pop()}`;
+      console.log('🐾 Upload path:', fileName);
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('avatars')
@@ -76,11 +98,15 @@ export const PetAvatarUpload: React.FC<PetAvatarUploadProps> = ({ pet, onAvatarC
           upsert: true
         });
       
+      console.log('🐾 Upload result:', { uploadData, uploadError });
+      
       if (uploadError) throw uploadError;
       
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
+      
+      console.log('🐾 Public URL:', publicUrl);
       
       // Aggiorna pet nel database
       const { error: updateError } = await supabase
