@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff, Moon, Sun, ArrowLeft, Heart, Shield, Zap, Users, Star, Play, CheckCircle, MessageSquare, Calendar, Bell, Mail, Lock, ArrowRight, Sparkles, ChevronDown, Menu, X } from 'lucide-react';
+import { TermsOfService, PrivacyPolicy, LicenseAgreement } from '@/components/legal/LegalDocuments';
 
 const AuthPage: React.FC = () => {
   const [loginEmail, setLoginEmail] = useState('');
@@ -24,6 +25,9 @@ const AuthPage: React.FC = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
 
   const { user, signIn, signUp, resetPassword } = useAuth();
   const { theme, setTheme } = useTheme();
@@ -549,9 +553,24 @@ const AuthPage: React.FC = () => {
             <div className="flex flex-col md:flex-row items-center gap-6 text-sm text-muted-foreground">
               <span>© 2024 PetVoice. Tutti i diritti riservati.</span>
               <div className="flex gap-6">
-                <a href="#" className="hover:text-azure transition-colors">Privacy</a>
-                <a href="#" className="hover:text-azure transition-colors">Termini</a>
-                <a href="#" className="hover:text-azure transition-colors">Supporto</a>
+                <button 
+                  onClick={() => setPrivacyModalOpen(true)}
+                  className="hover:text-azure transition-colors cursor-pointer"
+                >
+                  Privacy
+                </button>
+                <button 
+                  onClick={() => setTermsModalOpen(true)}
+                  className="hover:text-azure transition-colors cursor-pointer"
+                >
+                  Termini
+                </button>
+                <button 
+                  onClick={() => setSupportModalOpen(true)}
+                  className="hover:text-azure transition-colors cursor-pointer"
+                >
+                  Supporto
+                </button>
               </div>
             </div>
           </div>
@@ -708,6 +727,162 @@ const AuthPage: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Privacy Modal */}
+      <Dialog open={privacyModalOpen} onOpenChange={setPrivacyModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-card/95 backdrop-blur-md border-azure/20">
+          <PrivacyPolicy onClose={() => setPrivacyModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Terms Modal */}
+      <Dialog open={termsModalOpen} onOpenChange={setTermsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-card/95 backdrop-blur-md border-azure/20">
+          <TermsOfService onClose={() => setTermsModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Support Modal */}
+      <Dialog open={supportModalOpen} onOpenChange={setSupportModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-card/95 backdrop-blur-md border-azure/20">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+              Centro Supporto
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Contatti */}
+              <Card className="border-azure/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-azure" />
+                    Contatti Diretti
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">📧 Email</h4>
+                    <p className="text-sm text-muted-foreground">petvoice2025@gmail.com</p>
+                    <p className="text-xs text-muted-foreground">Risposta entro 24 ore</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">💬 Chat Live</h4>
+                    <p className="text-sm text-muted-foreground">Disponibile 24/7 nell'app</p>
+                    <p className="text-xs text-muted-foreground">Risposta immediata</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">🎫 Sistema Ticket</h4>
+                    <p className="text-sm text-muted-foreground">Per problemi complessi</p>
+                    <p className="text-xs text-muted-foreground">Tracciamento completo</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* FAQ */}
+              <Card className="border-azure/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-azure" />
+                    Domande Frequenti
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">❓ Come funziona l'analisi AI?</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Utilizziamo algoritmi avanzati per analizzare comportamenti, suoni e immagini dei tuoi animali.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">🔒 I miei dati sono sicuri?</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Sì, utilizziamo crittografia end-to-end e non condividiamo mai i tuoi dati.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">💰 Come funziona l'abbonamento?</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Offriamo piani flessibili con trial gratuito e cancellazione in qualsiasi momento.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Risoluzione Problemi */}
+              <Card className="border-azure/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-azure" />
+                    Risoluzione Problemi
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">🔄 App non funziona</h4>
+                    <p className="text-sm text-muted-foreground">
+                      1. Riavvia l'app<br/>
+                      2. Verifica connessione internet<br/>
+                      3. Aggiorna app se disponibile
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">📱 Problemi di upload</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Controlla spazio di archiviazione e qualità della connessione internet.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">🚨 Bug Report</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Invia screenshot e descrizione dettagliata al nostro team tecnico.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Community */}
+              <Card className="border-azure/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-azure" />
+                    Community & Risorse
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">👥 Forum Community</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Condividi esperienze con altri proprietari di animali.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">📚 Guide e Tutorial</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Video guide per utilizzare al meglio tutte le funzionalità.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">🎓 Webinar Gratuiti</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Sessioni live con esperti veterinari e comportamentalisti.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="text-center pt-6 border-t border-border/40">
+              <p className="text-sm text-muted-foreground mb-4">
+                Il nostro team di supporto è sempre pronto ad aiutarti per qualsiasi esigenza.
+              </p>
+              <Button onClick={() => setSupportModalOpen(false)} className="w-full md:w-auto">
+                Chiudi
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
