@@ -17,7 +17,8 @@ const AuthPage: React.FC = () => {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMode, setResetMode] = useState(false);
@@ -211,7 +212,7 @@ const AuthPage: React.FC = () => {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showLoginPassword ? 'text' : 'password'}
                       placeholder="La tua password"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
@@ -223,9 +224,9 @@ const AuthPage: React.FC = () => {
                       variant="ghost"
                       size="sm"
                       className="absolute right-1 top-1 h-8 w-8"
-                      onClick={() => setShowPassword(!showPassword)}
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
@@ -272,7 +273,7 @@ const AuthPage: React.FC = () => {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="reg-password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showRegisterPassword ? 'text' : 'password'}
                       placeholder="Scegli una password sicura"
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
@@ -285,9 +286,9 @@ const AuthPage: React.FC = () => {
                       variant="ghost"
                       size="sm"
                       className="absolute right-1 top-1 h-8 w-8"
-                      onClick={() => setShowPassword(!showPassword)}
+                      onClick={() => setShowRegisterPassword(!showRegisterPassword)}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
