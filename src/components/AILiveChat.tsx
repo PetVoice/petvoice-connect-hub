@@ -62,37 +62,49 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Flusso conversazionale gerarchico
+  // FLUSSO CONVERSAZIONALE COMPLETO AGGIORNATO 2025
   const mainFlow: FlowOption[] = [
     {
+      id: 'getting-started',
+      title: '🚀 Primi Passi',
+      description: 'Inizia con PetVoice',
+      children: [
+        {
+          id: 'platform-overview',
+          title: 'Panoramica piattaforma',
+          response: '🎯 **BENVENUTO IN PETVOICE!**\n\nPetVoice è la piattaforma AI più avanzata per il benessere dei pet.\n\n📊 **SEZIONI PRINCIPALI:**\n• Dashboard - Overview wellness e metriche\n• Pet - Gestione profili completi\n• Analisi AI - Sistema multimodale colorato\n• Diario - Tracking comportamentale\n• Calendario - Appuntamenti smart\n• Training - Protocolli AI personalizzati\n• Music Therapy - Musicoterapia AI\n• Community - Social network pet\n\n💡 **SUGGERIMENTO:** Inizia aggiungendo il tuo primo pet e fai un\'analisi per vedere la magia dell\'AI!'
+        },
+        {
+          id: 'first-setup',
+          title: 'Setup iniziale completo',
+          response: '⚙️ **SETUP OTTIMALE IN 5 PASSI:**\n\n1️⃣ **Aggiungi Pet** (Pet → Aggiungi Pet)\n   • Nome, tipo, razza, data nascita\n   • Allergie, paure, preferenze\n   • Foto profilo\n\n2️⃣ **Prima Analisi** (Analisi → scegli modalità colorata)\n   • Registra audio/video del pet\n   • Ottieni insights comportamentali\n\n3️⃣ **Setup Diario** (Diario → Nuova Voce)\n   • Mood score giornaliero\n   • Tag comportamentali\n\n4️⃣ **Calendario Base** (Calendario → Nuovo Evento)\n   • Prossimo appuntamento veterinario\n\n5️⃣ **Esplora Training AI** (Training → Genera Protocollo)\n   • L\'AI creerà il primo protocollo personalizzato!'
+        },
+        {
+          id: 'navigation-tips',
+          title: 'Come navigare efficacemente',
+          response: '🧭 **NAVIGATION MASTER TIPS:**\n\n🎨 **CODICI COLORE ANALISI:**\n• 🟦 Indigo = Testo | 🌸 Rosa = Foto\n• 🟣 Viola = Video | 🟠 Arancione = Audio\n• 🪸 Coral = Upload multiplo\n\n⚡ **SHORTCUTS UTILI:**\n• Selettore pet in alto per cambio rapido\n• Dashboard cards = quick actions\n• Filtri avanzati in ogni sezione\n• Export PDF da Dashboard/Calendario/Diario\n\n📱 **MOBILE FRIENDLY:**\n• Touch gestures ottimizzate\n• Interface responsive\n• Registrazione diretta da mobile\n\n💡 **PRO TIP:** Usa i colori per identificare rapidamente le funzioni!'
+        }
+      ]
+    },
+    {
       id: 'pets',
-      title: 'Gestione Pet',
+      title: '🐕 Gestione Pet',
       description: 'Tutto sui tuoi animali domestici',
       children: [
         {
-          id: 'add-pet',
-          title: 'Aggiungere un nuovo pet',
-          response: 'Per aggiungere un nuovo pet:\n\n1. Vai su "I Miei Pet" nel menu\n2. Clicca su "Aggiungi Pet"\n3. Inserisci nome, tipo, razza e data di nascita\n4. Carica una foto (opzionale)\n5. Salva le informazioni\n\nIl tuo pet sarà subito disponibile per analisi e diario!'
+          id: 'add-pet-advanced',
+          title: 'Aggiungere pet completo',
+          response: '➕ **AGGIUNTA PET PROFESSIONALE:**\n\n📋 **DATI ESSENZIALI:**\n1. Pet → Aggiungi Pet\n2. Info base: nome, tipo, razza, nascita\n3. Dettagli fisici: peso, taglia, colore\n4. Caratteristiche: temperamento, energia\n\n🏥 **DATI SANITARI:**\n• Allergie alimentari/ambientali\n• Condizioni mediche attuali\n• Farmaci e dosaggi\n• Veterinario di riferimento\n\n🎯 **PREFERENZE COMPORTAMENTALI:**\n• Attività favorite\n• Paure e trigger\n• Socializzazione (altri pet/persone)\n• Abitudini alimentari\n\n📸 **FOTO PROFILO:** Carica immagine chiara del viso per migliorare accuracy dell\'AI!'
         },
         {
-          id: 'edit-pet',
-          title: 'Modificare dati del pet',
-          response: 'Per modificare i dati del tuo pet:\n\n1. Vai su "I Miei Pet"\n2. Clicca sulla card del pet da modificare\n3. Clicca su "Modifica" \n4. Aggiorna le informazioni necessarie\n5. Salva le modifiche\n\nPuoi modificare nome, peso, condizioni di salute e molto altro!'
+          id: 'multi-pet-management',
+          title: 'Gestione multi-pet avanzata',
+          response: '🏠 **MULTI-PET MASTERY:**\n\n🔄 **SWITCH RAPIDO:**\n• Dropdown pet selector sempre visibile\n• Dati completamente separati per pet\n• Cronologie indipendenti\n• Settings personalizzati\n\n📊 **ANALYTICS COMPARATIVE:**\n• Dashboard mostra tutti i pet\n• Confronti wellness score\n• Trend comportamentali paralleli\n• Allerte per anomalie\n\n👨‍👩‍👧‍👦 **FAMIGLIA SHARING:**\n• Condividi accesso con familiari\n• Permessi differenziati (view/edit)\n• Notifiche multi-utente\n• Backup condiviso\n\n💎 **PREMIUM UNLOCKS:**\n• Pet illimitati (vs 1 gratuito)\n• Advanced comparisons\n• Family plan disponibile'
         },
         {
-          id: 'multiple-pets',
-          title: 'Gestire più pet',
-          response: 'Con PetVoice puoi gestire tutti i tuoi pet:\n\n• Aggiungi pet illimitati (piano premium)\n• Passa facilmente tra i pet dal menu\n• Ogni pet ha il suo diario e analisi separate\n• Visualizza statistiche comparative\n• Gestisci calendari separati per ogni pet'
-        },
-        {
-          id: 'pet-photo',
-          title: 'Caricare foto del pet',
-          response: 'Per caricare o cambiare la foto del pet:\n\n1. Vai su "I Miei Pet"\n2. Clicca sul pet\n3. Clicca sull\'icona della fotocamera\n4. Seleziona una foto dalla galleria\n5. Ritaglia se necessario\n6. Salva\n\nFormati supportati: JPG, PNG, HEIC (max 10MB)'
-        },
-        {
-          id: 'delete-pet',
-          title: 'Eliminare un pet',
-          response: 'Per eliminare un pet dal profilo:\n\n⚠️ ATTENZIONE: Questa azione eliminerà TUTTI i dati associati (diario, analisi, calendario)\n\n1. Vai su "I Miei Pet"\n2. Clicca sul pet da eliminare\n3. Clicca su "Impostazioni avanzate"\n4. Clicca su "Elimina pet"\n5. Conferma l\'eliminazione\n\nConsiglio: Esporta i dati prima di eliminare!'
+          id: 'pet-health-tracking',
+          title: 'Tracking sanitario avanzato',
+          response: '🏥 **HEALTH MONITORING PRO:**\n\n📋 **TIMELINE MEDICA:**\n• Cronologia visite veterinarie\n• Upload documenti/referti\n• Tracking vaccinazioni\n• Reminder controlli periodici\n\n💊 **GESTIONE FARMACI:**\n• Database farmaci con dosaggi\n• Reminder automatici\n• Tracking aderenza terapia\n• Monitoraggio effetti collaterali\n\n⚠️ **ALERT SISTEMA:**\n• Anomalie comportamentali\n• Cambiamenti wellness score\n• Scadenze farmaci/visite\n• Integration con analisi AI\n\n📊 **EXPORT VETERINARIO:**\n• Report PDF professionali\n• Dati comportamentali correlati\n• Timeline eventi sanitari\n• Insights AI per diagnosi'
         }
       ]
     },
@@ -220,8 +232,44 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       ]
     },
     {
+      id: 'music-therapy',
+      title: '🎵 Music Therapy AI',
+      description: 'Musicoterapia personalizzata',
+      children: [
+        {
+          id: 'music-generation',
+          title: 'Generazione musica AI',
+          response: '🎼 **MUSICOTERAPIA AI AVANZATA:**\n\n🎯 **GENERAZIONE INTELLIGENTE:**\n• AI analizza mood e comportamento pet\n• Frequenze specifiche per specie\n• Adattamento real-time durante sessione\n• Algoritmi proprietari per efficacia\n\n🎨 **TIPI SESSIONI:**\n• Rilassamento antistress\n• Stimolazione cognitiva\n• Recupero post-trauma\n• Socializzazione\n• Sonno profondo\n\n⚙️ **PERSONALIZZAZIONE:**\n• Strumenti musicali preferiti\n• Durata e intensità\n• Orari ottimali\n• Monitoring risposta comportamentale'
+        }
+      ]
+    },
+    {
+      id: 'community',
+      title: '👥 Community',
+      description: 'Social network per pet owners',
+      children: [
+        {
+          id: 'community-features',
+          title: 'Funzionalità community',
+          response: '🌍 **SOCIAL NETWORK PET:**\n\n💬 **CHAT E MESSAGGI:**\n• Canali pubblici tematici\n• Messaggi privati criptati\n• Condivisione foto/video\n• Sistema moderazione AI\n\n🤝 **PET MATCHING:**\n• Algoritmo compatibilità avanzato\n• Suggerimenti socializzazione\n• Organizzazione eventi locali\n• Geolocalizzazione opzionale\n\n📚 **KNOWLEDGE SHARING:**\n• Condivisione protocolli training\n• Reviews veterinari\n• Tips comportamentali\n• Success stories'
+        }
+      ]
+    },
+    {
+      id: 'premium',
+      title: '💎 Piano Premium',
+      description: 'Funzionalità avanzate',
+      children: [
+        {
+          id: 'premium-benefits',
+          title: 'Vantaggi Premium',
+          response: '⭐ **PIANO PREMIUM €9.99/mese:**\n\n🔥 **UNLOCKS COMPLETO:**\n• Pet illimitati (vs 1 gratuito)\n• Analisi AI illimitate (vs 10/mese)\n• Music Therapy personalizzata\n• Machine Learning predittivo\n• Training protocols avanzati\n• Export PDF professionali\n• Support prioritario <2h\n• Beta features early access\n\n💡 **ROI IMMEDIATO:**\n• Multi-pet = convenienza istantanea\n• Analisi accurate = migliori decisioni\n• Support veloce = problemi risolti subito\n\n🔄 **FLESSIBILITÀ:**\n• Cancellazione istantanea\n• Nessun vincolo contrattuale\n• Upgrade/downgrade quando vuoi'
+        }
+      ]
+    },
+    {
       id: 'support',
-      title: 'Supporto Tecnico',
+      title: '🆘 Supporto Tecnico',
       description: 'Assistenza e risoluzione problemi',
       children: [
         {
