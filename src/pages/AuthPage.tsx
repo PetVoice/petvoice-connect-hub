@@ -147,183 +147,6 @@ const AuthPage: React.FC = () => {
     }
   ];
 
-  // Auth Modal Component
-  const AuthModal = () => (
-    <Dialog open={authModalOpen} onOpenChange={setAuthModalOpen}>
-      <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-md border-azure/20">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
-            {resetMode ? "Reset Password" : "Inizia Ora"}
-          </DialogTitle>
-        </DialogHeader>
-        
-        {resetMode ? (
-          <form onSubmit={handleResetPassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="reset-email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="reset-email"
-                  type="email"
-                  placeholder="la-tua-email@esempio.com"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                  className="pl-9"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-3">
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Invio..." : "Invia Link Reset"}
-              </Button>
-              <Button type="button" variant="ghost" className="w-full" onClick={() => setResetMode(false)}>
-                Torna al Login
-              </Button>
-            </div>
-          </form>
-        ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login">Accedi</TabsTrigger>
-              <TabsTrigger value="register">Registrati</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="login" className="space-y-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="la-tua-email@esempio.com"
-                      value={loginEmail}
-                      onChange={(e) => {
-                        console.log('Email change:', e.target.value);
-                        setLoginEmail(e.target.value);
-                      }}
-                      className="pl-9"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type={showLoginPassword ? 'text' : 'password'}
-                      placeholder="La tua password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      className="pl-9 pr-12"
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-1 top-1 h-8 w-8"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setShowLoginPassword(!showLoginPassword);
-                      }}
-                    >
-                      {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-                <Button 
-                  type="button" 
-                  className="w-full" 
-                  disabled={loading}
-                  onClick={handleLogin}
-                >
-                  {loading ? "Accesso..." : "Accedi"}
-                </Button>
-                <Button type="button" variant="link" className="w-full text-sm" onClick={() => setResetMode(true)}>
-                  Password dimenticata?
-                </Button>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="register" className="space-y-4">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="reg-name">Nome</Label>
-                  <Input
-                    id="reg-name"
-                    type="text"
-                    placeholder="Il tuo nome"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="reg-email"
-                      type="email"
-                      placeholder="la-tua-email@esempio.com"
-                      value={registerEmail}
-                      onChange={(e) => setRegisterEmail(e.target.value)}
-                      className="pl-9"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="reg-password"
-                      type={showRegisterPassword ? 'text' : 'password'}
-                      placeholder="Scegli una password sicura"
-                      value={registerPassword}
-                      onChange={(e) => setRegisterPassword(e.target.value)}
-                      className="pl-9 pr-12"
-                      required
-                      minLength={6}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-1 top-1 h-8 w-8"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setShowRegisterPassword(!showRegisterPassword);
-                      }}
-                    >
-                      {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={loading}
-                >
-                  {loading ? "Registrazione..." : "Crea Account"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -591,7 +414,180 @@ const AuthPage: React.FC = () => {
       </footer>
 
       {/* Auth Modal */}
-      <AuthModal />
+      <Dialog open={authModalOpen} onOpenChange={setAuthModalOpen}>
+        <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-md border-azure/20">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+              {resetMode ? "Reset Password" : "Inizia Ora"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {resetMode ? (
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="la-tua-email@esempio.com"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    className="pl-9"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Invio..." : "Invia Link Reset"}
+                </Button>
+                <Button type="button" variant="ghost" className="w-full" onClick={() => setResetMode(false)}>
+                  Torna al Login
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="login">Accedi</TabsTrigger>
+                <TabsTrigger value="register">Registrati</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="login" className="space-y-4">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="la-tua-email@esempio.com"
+                        value={loginEmail}
+                        onChange={(e) => {
+                          console.log('Email change:', e.target.value);
+                          setLoginEmail(e.target.value);
+                        }}
+                        className="pl-9"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="password"
+                        type={showLoginPassword ? 'text' : 'password'}
+                        placeholder="La tua password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="pl-9 pr-12"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-1 top-1 h-8 w-8"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowLoginPassword(!showLoginPassword);
+                        }}
+                      >
+                        {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <Button 
+                    type="button" 
+                    className="w-full" 
+                    disabled={loading}
+                    onClick={handleLogin}
+                  >
+                    {loading ? "Accesso..." : "Accedi"}
+                  </Button>
+                  <Button type="button" variant="link" className="w-full text-sm" onClick={() => setResetMode(true)}>
+                    Password dimenticata?
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="register" className="space-y-4">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-name">Nome</Label>
+                    <Input
+                      id="reg-name"
+                      type="text"
+                      placeholder="Il tuo nome"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="reg-email"
+                        type="email"
+                        placeholder="la-tua-email@esempio.com"
+                        value={registerEmail}
+                        onChange={(e) => setRegisterEmail(e.target.value)}
+                        className="pl-9"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="reg-password"
+                        type={showRegisterPassword ? 'text' : 'password'}
+                        placeholder="Scegli una password sicura"
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
+                        className="pl-9 pr-12"
+                        required
+                        minLength={6}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-1 top-1 h-8 w-8"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowRegisterPassword(!showRegisterPassword);
+                        }}
+                      >
+                        {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <Button 
+                    type="button" 
+                    className="w-full" 
+                    disabled={loading}
+                    onClick={handleSignUp}
+                  >
+                    {loading ? "Registrazione..." : "Crea Account"}
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Demo Modal */}
       <Dialog open={demoModalOpen} onOpenChange={setDemoModalOpen}>
