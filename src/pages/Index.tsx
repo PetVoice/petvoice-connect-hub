@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -7,25 +7,40 @@ export const Index: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: roleLoading } = useUserRole();
 
-  // Mostra loading mentre verifica auth e ruoli
-  if (authLoading || (user && roleLoading)) {
+  // Memoizza lo stato di loading complessivo
+  const isLoading = useMemo(() => {
+    return authLoading || (user && roleLoading);
+  }, [authLoading, user, roleLoading]);
+
+  // Memoizza la destinazione del redirect
+  const redirectTo = useMemo(() => {
+    if (isLoading) return null;
+    
+    if (user) {
+      return isAdmin ? '/admin' : '/dashboard';
+    }
+    
+    return '/auth';
+  }, [user, isAdmin, isLoading]);
+
+  // Loading con delay minimo per evitare flash
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Caricamento...
+          </p>
+        </div>
       </div>
     );
   }
 
-  // Se utente autenticato, controlla se è admin
-  if (user) {
-    // Se è admin, redirect al pannello admin
-    if (isAdmin) {
-      return <Navigate to="/admin" replace />;
-    }
-    // Se è utente normale, redirect alla dashboard
-    return <Navigate to="/dashboard" replace />;
+  // Redirect senza flash
+  if (redirectTo) {
+    return <Navigate to={redirectTo} replace />;
   }
 
-  // Se non autenticato, redirect al login
-  return <Navigate to="/auth" replace />;
+  return null;
 };
