@@ -39,6 +39,7 @@ const AuthPage: React.FC = () => {
   }
 
   const handleLogin = async (e: React.FormEvent) => {
+    console.log('handleLogin called');
     e.preventDefault();
     setLoading(true);
     const { error } = await signIn(loginEmail, loginPassword);
@@ -200,7 +201,10 @@ const AuthPage: React.FC = () => {
                       type="email"
                       placeholder="la-tua-email@esempio.com"
                       value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
+                      onChange={(e) => {
+                        console.log('Email change:', e.target.value);
+                        setLoginEmail(e.target.value);
+                      }}
                       className="pl-9"
                       required
                     />
