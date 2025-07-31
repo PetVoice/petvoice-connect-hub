@@ -124,19 +124,6 @@ serve(async (req) => {
     const stripeSubscription = subscriptions.data[0];
     logStep("Found Stripe subscription", { subscriptionId: stripeSubscription.id, status: stripeSubscription.status });
 
-    // FORZA cancellazione immediata su Stripe indipendentemente dallo status
-    if (cancellation_type === 'immediate') {
-      // Cancella immediatamente qualsiasi abbonamento trovato
-      try {
-        await stripe.subscriptions.cancel(stripeSubscription.id);
-        logStep("Cancelled subscription immediately on Stripe");
-      } catch (cancelError) {
-        logStep("Error cancelling on Stripe", { error: cancelError });
-        // Continua comunque con l'aggiornamento del database
-      }
-    }
-    logStep("Found Stripe subscription", { subscriptionId: stripeSubscription.id });
-
     const now = new Date().toISOString();
     let effectiveDate = now;
 
@@ -146,8 +133,13 @@ serve(async (req) => {
                              subscriber.cancellation_type === 'end_of_period';
       
       // Cancel immediately on Stripe
-      await stripe.subscriptions.cancel(stripeSubscription.id);
-      logStep("Cancelled subscription immediately on Stripe");
+      try {
+        await stripe.subscriptions.cancel(stripeSubscription.id);
+        logStep("Cancelled subscription immediately on Stripe");
+      } catch (cancelError) {
+        logStep("Error cancelling on Stripe, continuing with database update", { error: cancelError.message });
+        // Continua comunque con l'aggiornamento del database
+      }
 
       const updateData: any = {
         subscription_status: 'cancelled',
