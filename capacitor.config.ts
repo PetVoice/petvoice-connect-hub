@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.5902ad2396c64f9995c48e601d99495a',
+  appId: 'com.lovable.petvoice',
   appName: 'petvoice-connect-hub',
   webDir: 'dist',
   server: {
