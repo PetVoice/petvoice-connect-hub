@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { supabase } from '@/integrations/supabase/client';
-import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star, Sun, Moon, Users } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Eye, EyeOff, Moon, Sun, ArrowLeft, Heart, Shield, Zap, Users, Star, Play, CheckCircle, MessageSquare, Calendar, Bell, Mail, Lock, ArrowRight, Sparkles, ChevronDown, Menu, X } from 'lucide-react';
 
 const AuthPage: React.FC = () => {
   const [loginEmail, setLoginEmail] = useState('');
@@ -18,25 +16,18 @@ const AuthPage: React.FC = () => {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMode, setResetMode] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
-  
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const { user, signIn, signUp, resetPassword } = useAuth();
   const { theme, setTheme } = useTheme();
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-    
-  }, [user, navigate, location.search]);
-
+  // Redirect authenticated users
   if (user) {
     return <Navigate to="/" replace />;
   }
@@ -44,391 +35,529 @@ const AuthPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
     const { error } = await signIn(loginEmail, loginPassword);
-    
     if (!error) {
-      navigate('/');
+      setAuthModalOpen(false);
     }
-    
     setLoading(false);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     setLoading(true);
-    
     const { error } = await signUp(registerEmail, registerPassword, displayName);
-    
-    // Non mostrare toast qui - sono già gestiti in AuthContext
     setLoading(false);
-    
     if (!error) {
-      // Registrazione riuscita - pulisci i campi
       setRegisterEmail('');
       setRegisterPassword('');
       setDisplayName('');
-      
-    }
-  };
-
-
-  const handleEmailChange = (value: string, isRegister: boolean = false) => {
-    if (isRegister) {
-      setRegisterEmail(value);
-    } else {
-      setLoginEmail(value);
+      setAuthModalOpen(false);
     }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
     const { error } = await resetPassword(resetEmail);
-    
     setLoading(false);
-    
     if (!error) {
       setResetMode(false);
       setResetEmail('');
     }
   };
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
+  const features = [
+    {
+      icon: Heart,
+      title: "Analisi Emotiva",
+      description: "AI avanzata per riconoscere lo stato emotivo del tuo animale attraverso voce, comportamento e foto"
+    },
+    {
+      icon: Shield,
+      title: "Sicurezza Totale",
+      description: "I dati dei tuoi animali sono protetti con crittografia end-to-end e privacy garantita"
+    },
+    {
+      icon: Zap,
+      title: "Risultati Istantanei",
+      description: "Ottieni analisi in tempo reale con raccomandazioni personalizzate per il benessere"
+    },
+    {
+      icon: Users,
+      title: "Community",
+      description: "Connettiti con altri proprietari di animali e condividi esperienze nella nostra community"
+    }
+  ];
 
-  if (resetMode) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 gradient-hero relative overflow-hidden">
-        {/* Floating elements */}
-        <div className="absolute top-20 left-10 w-16 h-16 bg-azure/10 rounded-full float" />
-        <div className="absolute top-40 right-20 w-12 h-12 bg-azure/20 rounded-full float-delayed" />
-        <div className="absolute bottom-32 left-20 w-20 h-20 bg-azure/5 rounded-full float" />
+  const stats = [
+    { number: "50K+", label: "Animali Analizzati" },
+    { number: "95%", label: "Precisione AI" },
+    { number: "24/7", label: "Supporto Attivo" },
+    { number: "4.9★", label: "Rating Utenti" }
+  ];
+
+  const steps = [
+    {
+      step: "1",
+      title: "Registra il tuo Pet",
+      description: "Crea un profilo per il tuo animale con foto e informazioni base"
+    },
+    {
+      step: "2", 
+      title: "Cattura i Momenti",
+      description: "Registra video, audio o scatta foto del comportamento del tuo animale"
+    },
+    {
+      step: "3",
+      title: "Analisi AI",
+      description: "La nostra intelligenza artificiale analizza i dati per comprendere lo stato emotivo"
+    },
+    {
+      step: "4",
+      title: "Ricevi Insights",
+      description: "Ottieni report dettagliati e consigli personalizzati per il benessere"
+    }
+  ];
+
+  const testimonials = [
+    {
+      name: "Maria Rossi",
+      role: "Proprietaria di Luna",
+      content: "PetVoice mi ha aiutato a capire quando Luna era stressata. Ora posso intervenire prima che il problema peggiori.",
+      rating: 5
+    },
+    {
+      name: "Giuseppe Bianchi", 
+      role: "Veterinario",
+      content: "Uso PetVoice per i miei pazienti. L'analisi comportamentale è incredibilmente precisa e utile per le diagnosi.",
+      rating: 5
+    },
+    {
+      name: "Anna Verde",
+      role: "Proprietaria di Max",
+      content: "La community di PetVoice è fantastica. Ho trovato supporto e consigli preziosi da altri proprietari.",
+      rating: 5
+    }
+  ];
+
+  // Auth Modal Component
+  const AuthModal = () => (
+    <Dialog open={authModalOpen} onOpenChange={setAuthModalOpen}>
+      <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-md border-azure/20">
+        <DialogHeader>
+          <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+            {resetMode ? "Reset Password" : "Inizia Ora"}
+          </DialogTitle>
+        </DialogHeader>
         
-        <Card className="w-full max-w-md shadow-popup animate-scale-in relative bg-card/95 backdrop-blur-sm border-azure/20">
-          <CardHeader className="text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full gradient-azure flex items-center justify-center animate-glow">
-              <Mail className="w-8 h-8 text-white" />
+        {resetMode ? (
+          <form onSubmit={handleResetPassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reset-email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="la-tua-email@esempio.com"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  className="pl-9"
+                  required
+                />
+              </div>
             </div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
-              Reimposta Password
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Inserisci la tua email per ricevere il link di reset
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleResetPassword} className="space-y-6">
-              <div className="space-y-2 animate-slide-up">
-                <Label htmlFor="reset-email" className="text-sm font-medium">Email</Label>
-                <div className="relative group">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
+            <div className="space-y-3">
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Invio..." : "Invia Link Reset"}
+              </Button>
+              <Button type="button" variant="ghost" className="w-full" onClick={() => setResetMode(false)}>
+                Torna al Login
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="login">Accedi</TabsTrigger>
+              <TabsTrigger value="register">Registrati</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login" className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="la-tua-email@esempio.com"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="pl-9"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="La tua password"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      className="pl-9 pr-12"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-1 h-8 w-8"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Accesso..." : "Accedi"}
+                </Button>
+                <Button type="button" variant="link" className="w-full text-sm" onClick={() => setResetMode(true)}>
+                  Password dimenticata?
+                </Button>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="register" className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reg-name">Nome</Label>
                   <Input
-                    id="reset-email"
-                    type="email"
-                    placeholder="la-tua-email@esempio.com"
-                    value={resetEmail}
-                    onChange={(e) => setResetEmail(e.target.value)}
-                    className="pl-9 petvoice-input transition-all duration-300 focus:scale-[1.02]"
+                    id="reg-name"
+                    type="text"
+                    placeholder="Il tuo nome"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
                     required
                   />
                 </div>
-              </div>
-              
-              <div className="space-y-3 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                <Button 
-                  type="submit" 
-                  className="w-full petvoice-button h-12 font-medium text-lg" 
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Invio...
-                    </div>
-                  ) : (
-                    <>
-                      Invia Link Reset
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </>
-                  )}
+                <div className="space-y-2">
+                  <Label htmlFor="reg-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="reg-email"
+                      type="email"
+                      placeholder="la-tua-email@esempio.com"
+                      value={registerEmail}
+                      onChange={(e) => setRegisterEmail(e.target.value)}
+                      className="pl-9"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="reg-password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Scegli una password sicura"
+                      value={registerPassword}
+                      onChange={(e) => setRegisterPassword(e.target.value)}
+                      className="pl-9 pr-12"
+                      required
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-1 h-8 w-8"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Registrazione..." : "Crea Account"}
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  className="w-full hover:bg-azure/10 transition-colors" 
-                  onClick={() => setResetMode(false)}
-                >
-                  Torna al Login
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+              </form>
+            </TabsContent>
+          </Tabs>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 gradient-hero relative overflow-hidden">
-      {/* Controls - Top Right */}
-      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-        {/* Theme Toggle */}
-        <div className="flex items-center gap-1 p-1 bg-card/80 backdrop-blur-md rounded-lg border border-azure/20">
-          <Button
-            variant={theme === 'light' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setTheme('light')}
-            className={`h-8 w-8 p-0 ${theme === 'light' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
-          >
-            <Sun className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={theme === 'dark' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setTheme('dark')}
-            className={`h-8 w-8 p-0 ${theme === 'dark' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
-          >
-            <Moon className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-azure/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-azure/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-azure/8 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }} />
-      </div>
-
-      {/* Floating decorative elements */}
-      <div className="absolute top-20 left-10 w-3 h-3 bg-azure rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-      <div className="absolute top-40 right-20 w-2 h-2 bg-azure-light rounded-full animate-bounce" style={{ animationDelay: '1s' }} />
-      <div className="absolute bottom-32 left-20 w-4 h-4 bg-azure/60 rounded-full animate-bounce" style={{ animationDelay: '2s' }} />
-      <div className="absolute bottom-20 right-10 w-2 h-2 bg-azure-glow rounded-full animate-bounce" style={{ animationDelay: '0.5s' }} />
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo Section */}
-        <div className="text-center mb-8 animate-bounce-in">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-3xl gradient-azure flex items-center justify-center mx-auto mb-6 shadow-glow animate-glow animate-gentle-float">
-              <span className="text-white font-bold text-3xl animate-pulse">🐾</span>
+    <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl gradient-azure flex items-center justify-center">
+                <span className="text-white font-bold text-xl">🐾</span>
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+                PetVoice
+              </span>
             </div>
-            <div className="absolute -inset-2 bg-azure/20 rounded-3xl blur-lg -z-10 animate-pulse" />
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#features" className="text-foreground/80 hover:text-azure transition-colors">Features</a>
+              <a href="#how-it-works" className="text-foreground/80 hover:text-azure transition-colors">Come Funziona</a>
+              <a href="#testimonials" className="text-foreground/80 hover:text-azure transition-colors">Testimonianze</a>
+            </div>
+
+            {/* Theme Toggle & CTA */}
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                className="w-9 h-9 p-0"
+              >
+                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              </Button>
+              
+              <Button onClick={() => setAuthModalOpen(true)} className="hidden md:flex">
+                Inizia Gratis
+              </Button>
+
+              {/* Mobile Menu Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="md:hidden w-9 h-9 p-0"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-azure-light to-white bg-clip-text text-transparent mb-3 animate-slide-in-left animate-pulse">
-            PetVoice
-          </h1>
-          <p className="text-white/90 text-lg animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
-            Analizza le emozioni del tuo pet
-          </p>
-          <div className="flex justify-center mt-4 gap-3">
-            <Heart className="w-5 h-5 text-azure-light animate-bounce animate-gentle-float" style={{ animationDelay: '0s' }} />
-            <Sparkles className="w-5 h-5 text-white animate-bounce animate-gentle-float" style={{ animationDelay: '0.3s' }} />
-            <Star className="w-5 h-5 text-azure-glow animate-bounce animate-gentle-float" style={{ animationDelay: '0.6s' }} />
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-border/40 py-4 space-y-3">
+              <a href="#features" className="block text-foreground/80 hover:text-azure transition-colors">Features</a>
+              <a href="#how-it-works" className="block text-foreground/80 hover:text-azure transition-colors">Come Funziona</a>
+              <a href="#testimonials" className="block text-foreground/80 hover:text-azure transition-colors">Testimonianze</a>
+              <Button onClick={() => setAuthModalOpen(true)} className="w-full mt-4">
+                Inizia Gratis
+              </Button>
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-4 gradient-hero relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-azure/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-azure/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-azure/8 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }} />
+        </div>
+
+        <div className="container mx-auto text-center relative z-10">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-azure-light to-white bg-clip-text text-transparent animate-fade-in">
+              Comprendi le Emozioni del Tuo Pet
+            </h1>
+            <p className="text-xl md:text-2xl text-white/90 mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              Intelligenza artificiale avanzata per analizzare comportamenti, suoni e stati emotivi dei tuoi animali domestici
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+              <Button 
+                size="lg" 
+                className="text-lg px-8 py-4 h-auto group"
+                onClick={() => setAuthModalOpen(true)}
+              >
+                Inizia Gratuitamente
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="text-lg px-8 py-4 h-auto bg-white/10 border-white/30 text-white hover:bg-white/20"
+              >
+                <Play className="mr-2 h-5 w-5" />
+                Guarda Demo
+              </Button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.number}</div>
+                  <div className="text-white/80 text-sm md:text-base">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        <Card className="shadow-popup animate-scale-in bg-card/95 backdrop-blur-md border-azure/20">
-          <CardHeader className="text-center space-y-4">
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
-              Benvenuto
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-base">
-              Accedi o registrati per iniziare il viaggio
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6 bg-secondary/50 backdrop-blur-sm">
-                <TabsTrigger 
-                  value="login"
-                  className="data-[state=active]:bg-azure data-[state=active]:text-white transition-all duration-300"
-                >
-                  Accedi
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="register"
-                  className="data-[state=active]:bg-azure data-[state=active]:text-white transition-all duration-300"
-                >
-                  Registrati
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login" className="space-y-6">
-                <form onSubmit={handleLogin} className="space-y-5">
-                  <div className="space-y-2 animate-slide-up">
-                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-                    <div className="relative group">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="la-tua-email@esempio.com"
-                        value={loginEmail}
-                        onChange={(e) => handleEmailChange(e.target.value, false)}
-                        className="pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
-                        required
-                      />
-                    </div>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <ChevronDown className="h-6 w-6 text-white/80" />
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Funzionalità <span className="bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">Innovative</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Tecnologie all'avanguardia per il benessere e la comprensione dei tuoi animali domestici
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 border-azure/20">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 mx-auto rounded-full gradient-azure flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <feature.icon className="h-8 w-8 text-white" />
                   </div>
-                  
-                  <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                    <div className="relative group">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
-                      <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="La tua password"
-                        value={loginPassword}
-                        onChange={(e) => setLoginPassword(e.target.value)}
-                        className="pl-9 pr-12 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-1 top-1 h-10 w-10 hover:bg-azure/10 transition-colors"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-center">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 px-4 bg-secondary/30">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Come <span className="bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">Funziona</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Semplice, veloce e preciso. In pochi passaggi comprendi meglio il tuo animale
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {steps.map((step, index) => (
+              <div key={index} className="text-center relative">
+                {/* Connector line */}
+                {index < steps.length - 1 && (
+                  <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-azure/50 to-transparent transform translate-x-4" />
+                )}
+                
+                <div className="w-16 h-16 mx-auto rounded-full gradient-azure flex items-center justify-center text-white font-bold text-xl mb-4">
+                  {step.step}
+                </div>
+                <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+                <p className="text-muted-foreground">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Cosa Dicono i <span className="bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">Nostri Utenti</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Migliaia di proprietari di animali si affidano a PetVoice ogni giorno
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="border-azure/20">
+                <CardHeader>
+                  <div className="flex items-center gap-1 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-azure text-azure" />
+                    ))}
                   </div>
-                  
-                  <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                    <Button 
-                      type="submit" 
-                      className="w-full petvoice-button h-12 font-medium text-lg group" 
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Accesso...
-                        </div>
-                      ) : (
-                        <>
-                          Accedi
-                          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  
-                  <div className="text-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                    <Button 
-                      type="button" 
-                      variant="link" 
-                      className="text-sm text-azure hover:text-azure-dark transition-colors"
-                      onClick={() => setResetMode(true)}
-                    >
-                      Password dimenticata?
-                    </Button>
-                  </div>
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="register" className="space-y-6">
-                <form onSubmit={handleSignUp} className="space-y-5">
-                  <div className="space-y-2 animate-slide-up">
-                    <Label htmlFor="reg-name" className="text-sm font-medium">Nome</Label>
-                    <div className="relative group">
-                      <Input
-                        id="reg-name"
-                        type="text"
-                        placeholder="Il tuo nome"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        className="petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                    <Label htmlFor="reg-email" className="text-sm font-medium">Email</Label>
-                    <div className="relative group">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
-                      <Input
-                        id="reg-email"
-                        type="email"
-                        placeholder="la-tua-email@esempio.com"
-                        value={registerEmail}
-                         onChange={(e) => handleEmailChange(e.target.value, true)}
-                         className="pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
-                         required
-                       />
-                   </div>
-                   </div>
-                  
-                  <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                    <Label htmlFor="reg-password" className="text-sm font-medium">Password</Label>
-                    <div className="relative group">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
-                      <Input
-                        id="reg-password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Scegli una password sicura"
-                        value={registerPassword}
-                        onChange={(e) => setRegisterPassword(e.target.value)}
-                        className="pl-9 pr-12 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
-                        required
-                        minLength={6}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-1 top-1 h-10 w-10 hover:bg-azure/10 transition-colors"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground pl-1">
-                      Minimo 6 caratteri
-                    </p>
-                   </div>
-                   
-                   <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                    <Button 
-                      type="submit" 
-                      className="w-full petvoice-button h-12 font-medium text-lg group" 
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Registrazione...
-                        </div>
-                      ) : (
-                        <>
-                          Registrati
-                          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
+                  <CardDescription className="text-base">"{testimonial.content}"</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="font-semibold">{testimonial.name}</div>
+                  <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 gradient-azure text-white">
+        <div className="container mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Inizia il Viaggio con il Tuo Pet
+          </h2>
+          <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
+            Unisciti a migliaia di proprietari che hanno già migliorato la relazione con i loro animali
+          </p>
+          <Button 
+            size="lg" 
+            variant="secondary"
+            className="text-lg px-8 py-4 h-auto bg-white text-azure hover:bg-white/90"
+            onClick={() => setAuthModalOpen(true)}
+          >
+            Inizia Gratuitamente Oggi
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-4 border-t border-border/40">
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg gradient-azure flex items-center justify-center">
+                <span className="text-white font-bold text-sm">🐾</span>
+              </div>
+              <span className="text-lg font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+                PetVoice
+              </span>
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center gap-6 text-sm text-muted-foreground">
+              <span>© 2024 PetVoice. Tutti i diritti riservati.</span>
+              <div className="flex gap-6">
+                <a href="#" className="hover:text-azure transition-colors">Privacy</a>
+                <a href="#" className="hover:text-azure transition-colors">Termini</a>
+                <a href="#" className="hover:text-azure transition-colors">Supporto</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Auth Modal */}
+      <AuthModal />
     </div>
   );
 };
