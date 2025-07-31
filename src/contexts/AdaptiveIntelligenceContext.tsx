@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePets } from './PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { AdaptiveIntelligenceState, EmotionalDNA, AdaptiveInsight, AdaptationContext, AdaptiveRecommendation, BehaviorPattern } from '@/types/adaptiveIntelligence';
+import { useToast } from '@/hooks/use-toast';
 
 export interface AdaptiveIntelligenceContextType extends AdaptiveIntelligenceState {
   updateEmotionalDNA: () => Promise<void>;
@@ -24,6 +25,7 @@ export const useAdaptiveIntelligence = () => {
 
 export const AdaptiveIntelligenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { selectedPet } = usePets();
+  const { toast } = useToast();
   
   const [state, setState] = useState<AdaptiveIntelligenceState>({
     emotionalDNA: null,
@@ -339,6 +341,119 @@ export const AdaptiveIntelligenceProvider: React.FC<{ children: React.ReactNode 
   const refreshIntelligence = async () => {
     await updateEmotionalDNA();
     await generateInsights();
+    await performBackgroundMLTasks();
+  };
+
+  // Funzioni di Machine Learning in background
+  const performBackgroundMLTasks = async () => {
+    if (!selectedPet) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      console.log('Eseguendo ML tasks in background per:', selectedPet.name);
+      
+      // 1. Detecta nuovi pattern comportamentali automaticamente
+      await detectPatternsInBackground(user.id, selectedPet.id);
+      
+      // 2. Controlla se i modelli hanno bisogno di retraining
+      await checkAndRetrainModels(user.id, selectedPet.id);
+      
+      // 3. Aggiorna le metriche di performance
+      await updatePerformanceMetrics(user.id, selectedPet.id);
+      
+    } catch (error) {
+      console.error('Errore in background ML tasks:', error);
+    }
+  };
+
+  const detectPatternsInBackground = async (userId: string, petId: string) => {
+    try {
+      const response = await supabase.functions.invoke('continuous-learning', {
+        body: {
+          action: 'detect_patterns',
+          userId,
+          petId
+        }
+      });
+
+      if (response.error) {
+        console.error('Errore pattern detection:', response.error);
+        return;
+      }
+
+      if (response.data?.patterns?.length > 0) {
+        console.log('Nuovi pattern rilevati:', response.data.patterns.length);
+        
+        // Toast silenzioso per nuovi pattern importanti
+        const criticalPatterns = response.data.patterns.filter((p: any) => p.confidence > 0.8);
+        if (criticalPatterns.length > 0) {
+          toast({
+            title: "Nuovo pattern rilevato",
+            description: `Abbiamo identificato ${criticalPatterns.length} nuovi pattern comportamentali significativi per ${selectedPet.name}.`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Errore detection pattern:', error);
+    }
+  };
+
+  const checkAndRetrainModels = async (userId: string, petId: string) => {
+    try {
+      // Controlla se ci sono abbastanza nuovi feedback per giustificare un retraining
+      const { data: recentFeedback } = await supabase
+        .from('prediction_feedback')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('pet_id', petId)
+        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Ultime 24h
+        .order('created_at', { ascending: false });
+
+      if (recentFeedback && recentFeedback.length >= 5) {
+        console.log(`${recentFeedback.length} nuovi feedback - considerando retraining automatico`);
+        
+        // Calcola l'accuratezza media dei feedback recenti
+        const avgAccuracy = recentFeedback.reduce((sum, f) => sum + (f.accuracy_score || 0), 0) / recentFeedback.length;
+        
+        // Se l'accuratezza è scesa sotto il 70%, fai retraining automatico
+        if (avgAccuracy < 0.7) {
+          console.log('Accuratezza bassa rilevata, avvio retraining automatico...');
+          
+          await supabase.functions.invoke('continuous-learning', {
+            body: {
+              action: 'retrain_model',
+              modelType: 'emotion_prediction' // Il modello più importante
+            }
+          });
+
+          toast({
+            title: "Modello migliorato",
+            description: `I modelli di predizione per ${selectedPet.name} sono stati aggiornati automaticamente per migliorare l'accuratezza.`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Errore check retraining:', error);
+    }
+  };
+
+  const updatePerformanceMetrics = async (userId: string, petId: string) => {
+    try {
+      // Aggiorna silenziosamente le metriche di performance
+      await supabase.functions.invoke('continuous-learning', {
+        body: {
+          action: 'get_learning_insights',
+          userId,
+          petId
+        }
+      });
+      
+      console.log('Metriche di performance aggiornate in background');
+    } catch (error) {
+      console.error('Errore aggiornamento metriche:', error);
+    }
   };
 
   // Auto-refresh ogni 5 minuti se c'è un pet selezionato
