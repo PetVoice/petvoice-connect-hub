@@ -393,15 +393,6 @@ const AuthPage: React.FC = () => {
                  Prova Ora
                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                </Button>
-               <Button 
-                 variant="outline" 
-                 size="lg" 
-                 className="text-lg px-8 py-4 h-auto bg-white/10 border-white/30 text-white hover:bg-white/20"
-                 onClick={() => setDemoModalOpen(true)}
-               >
-                 <Play className="mr-2 h-5 w-5" />
-                 Guarda Demo
-               </Button>
             </div>
 
             {/* Stats */}
@@ -531,7 +522,7 @@ const AuthPage: React.FC = () => {
             className="text-lg px-8 py-4 h-auto bg-white text-azure hover:bg-white/90"
             onClick={() => setAuthModalOpen(true)}
           >
-            Prova Ora - Trial Gratuito
+            Prova Ora
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
