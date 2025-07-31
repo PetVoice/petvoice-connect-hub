@@ -184,23 +184,24 @@ const AuthPage: React.FC = () => {
               <TabsTrigger value="register">Registrati</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="login" className="space-y-4">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="la-tua-email@esempio.com"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      className="pl-9"
-                      required
-                    />
+            <div className="min-h-[320px] transition-all duration-300 ease-in-out">
+              <TabsContent value="login" className="space-y-4 m-0">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="la-tua-email@esempio.com"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        className="pl-9"
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
@@ -292,7 +293,8 @@ const AuthPage: React.FC = () => {
                 </Button>
               </form>
             </TabsContent>
-          </Tabs>
+          </div>
+        </Tabs>
         )}
       </DialogContent>
     </Dialog>
