@@ -190,7 +190,7 @@ const AuthPage: React.FC = () => {
             </TabsList>
             
             <TabsContent value="login" className="space-y-4">
-              <div className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -202,12 +202,6 @@ const AuthPage: React.FC = () => {
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className="pl-9"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleLogin(e as any);
-                        }
-                      }}
                       required
                     />
                   </div>
@@ -223,12 +217,6 @@ const AuthPage: React.FC = () => {
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       className="pl-9 pr-12"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleLogin(e as any);
-                        }
-                      }}
                       required
                     />
                     <Button
@@ -247,21 +235,20 @@ const AuthPage: React.FC = () => {
                   </div>
                 </div>
                 <Button 
-                  type="button" 
+                  type="submit" 
                   className="w-full" 
                   disabled={loading}
-                  onClick={handleLogin}
                 >
                   {loading ? "Accesso..." : "Accedi"}
                 </Button>
                 <Button type="button" variant="link" className="w-full text-sm" onClick={() => setResetMode(true)}>
                   Password dimenticata?
                 </Button>
-              </div>
+              </form>
             </TabsContent>
             
             <TabsContent value="register" className="space-y-4">
-              <div className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="reg-name">Nome</Label>
                   <Input
@@ -270,12 +257,6 @@ const AuthPage: React.FC = () => {
                     placeholder="Il tuo nome"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleSignUp(e as any);
-                      }
-                    }}
                     required
                   />
                 </div>
@@ -290,12 +271,6 @@ const AuthPage: React.FC = () => {
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       className="pl-9"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleSignUp(e as any);
-                        }
-                      }}
                       required
                     />
                   </div>
@@ -311,12 +286,6 @@ const AuthPage: React.FC = () => {
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       className="pl-9 pr-12"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleSignUp(e as any);
-                        }
-                      }}
                       required
                       minLength={6}
                     />
@@ -336,14 +305,13 @@ const AuthPage: React.FC = () => {
                   </div>
                 </div>
                 <Button 
-                  type="button" 
+                  type="submit" 
                   className="w-full" 
                   disabled={loading}
-                  onClick={handleSignUp}
                 >
                   {loading ? "Registrazione..." : "Crea Account"}
                 </Button>
-              </div>
+              </form>
             </TabsContent>
           </Tabs>
         )}
