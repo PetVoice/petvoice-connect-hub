@@ -1,4 +1,4 @@
-name: Build Android AAB
+name: Build Android AAB - Fixed
 on:
   workflow_dispatch:
   push:
@@ -25,12 +25,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           
-      - name: Verify versions
-        run: |
-          echo "Node.js version: $(node --version)"
-          echo "NPM version: $(npm --version)"
-          echo "Java version: $(java -version)"
-          
       - name: Install dependencies
         run: npm install --legacy-peer-deps
         
@@ -41,63 +35,160 @@ jobs:
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
             echo "🚀 Initializing Capacitor..."
-            # CAMBIA QUI il Bundle ID se necessario ⬇️
             npx cap init "PetVoice" "com.petvoice.connect" --web-dir="dist"
-            echo "✅ Capacitor initialized with Bundle ID: com.petvoice.connect"
-          else
-            echo "✅ Capacitor already configured"
+            echo "✅ Capacitor initialized"
           fi
           
-      - name: Check Capacitor config
+      - name: Show Capacitor config
         run: |
-          echo "Checking Capacitor configuration..."
+          echo "=== CAPACITOR CONFIG ==="
           if [ -f "capacitor.config.ts" ]; then
-            echo "✅ capacitor.config.ts found"
             cat capacitor.config.ts
           elif [ -f "capacitor.config.js" ]; then
-            echo "✅ capacitor.config.js found"  
             cat capacitor.config.js
-          else
-            echo "❌ No Capacitor config found"
-            exit 1
           fi
           
-      - name: Initialize Capacitor Android platform
+      - name: Add Android platform
         run: |
           if [ ! -d "android" ]; then
             echo "Adding Android platform..."
             npx cap add android
-          else
-            echo "Android platform already exists"
           fi
-        
+          
       - name: Sync Capacitor
         run: npx cap sync android
         
+      - name: Generate release keystore
+        run: |
+          cd android/app
+          mkdir -p keystore
+          keytool -genkeypair -v -keystore keystore/release.keystore \
+            -alias petvoice -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass petvoice123 -keypass petvoice123 \
+            -dname "CN=PetVoice, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT"
+          echo "✅ Release keystore generated"
+          
+      - name: Configure signing
+        run: |
+          cd android/app
+          cat > keystore.properties << EOF
+          storePassword=petvoice123
+          keyPassword=petvoice123
+          keyAlias=petvoice
+          storeFile=keystore/release.keystore
+          EOF
+          
+      - name: Update build.gradle for signing
+        run: |
+          cd android/app
+          # Backup originale
+          cp build.gradle build.gradle.bak
+          
+          # Aggiungi configurazione signing
+          cat > build.gradle << 'EOF'
+          apply plugin: 'com.android.application'
+
+          def keystorePropertiesFile = rootProject.file("app/keystore.properties")
+          def keystoreProperties = new Properties()
+          keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+          android {
+              namespace "com.petvoice.connect"
+              compileSdk rootProject.ext.compileSdkVersion
+              defaultConfig {
+                  applicationId "com.petvoice.connect"
+                  minSdkVersion rootProject.ext.minSdkVersion
+                  targetSdkVersion rootProject.ext.targetSdkVersion
+                  versionCode 1
+                  versionName "1.0.0"
+                  testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+                  aaptOptions {
+                       // Files and dirs to omit from the packaged APK/AAB
+                       // Dir -> dirs to omit
+                       // File -> files to omit
+                       ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+                  }
+              }
+              signingConfigs {
+                  release {
+                      keyAlias keystoreProperties['keyAlias']
+                      keyPassword keystoreProperties['keyPassword']
+                      storeFile file(keystoreProperties['storeFile'])
+                      storePassword keystoreProperties['storePassword']
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                      minifyEnabled false
+                      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                  }
+              }
+          }
+
+          repositories {
+              google()
+              mavenCentral()
+          }
+
+          dependencies {
+              implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+              implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+              implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+              implementation project(':capacitor-android')
+              testImplementation "junit:junit:$junitVersion"
+              androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+              androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+              implementation project(':capacitor-cordova-android-plugins')
+          }
+
+          apply from: 'capacitor.build.gradle'
+
+          try {
+              def servicesJSON = file('google-services.json')
+              if (servicesJSON.text) {
+                  apply plugin: 'com.google.gms.google-services'
+              }
+          } catch(Exception e) {
+              logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+          }
+          EOF
+          
       - name: Make gradlew executable
         run: chmod +x android/gradlew
         
-      - name: Build AAB
+      - name: Clean and build AAB
         run: |
           cd android
-          echo "Building release AAB..."
-          ./gradlew bundleRelease --no-daemon --stacktrace
-          echo "AAB build completed"
+          echo "=== CLEANING ==="
+          ./gradlew clean
+          echo "=== BUILDING RELEASE AAB ==="
+          ./gradlew bundleRelease --stacktrace --info
           
-      - name: Verify AAB was created
+      - name: Verify AAB details  
         run: |
-          if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
+          if [ -f "$AAB_PATH" ]; then
             echo "✅ AAB created successfully"
-            ls -lah android/app/build/outputs/bundle/release/app-release.aab
+            echo "File size: $(du -h $AAB_PATH | cut -f1)"
+            echo "File type: $(file $AAB_PATH)"
+            
+            # Verifica contenuto AAB
+            echo "=== AAB CONTENTS ==="
+            unzip -l "$AAB_PATH" | head -20
+            
+            # Verifica AndroidManifest
+            echo "=== CHECKING MANIFEST ==="
+            aapt dump badging "$AAB_PATH" | head -10 || echo "aapt not available"
           else
-            echo "❌ AAB not found"
-            find android -name "*.aab" -type f
+            echo "❌ AAB not found at $AAB_PATH"
+            find android -name "*.aab" -type f || echo "No AAB files found"
             exit 1
           fi
-        
-      - name: Upload AAB artifact
+          
+      - name: Upload signed AAB
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-aab
+          name: petvoice-signed-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
