@@ -77,7 +77,22 @@ jobs:
         run: chmod +x android/gradlew
         
       - name: Build AAB
-        run: cd android && ./gradlew bundleRelease
+        run: |
+          cd android
+          echo "Building release AAB..."
+          ./gradlew bundleRelease --no-daemon --stacktrace
+          echo "AAB build completed"
+          
+      - name: Verify AAB was created
+        run: |
+          if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+            echo "✅ AAB created successfully"
+            ls -lah android/app/build/outputs/bundle/release/app-release.aab
+          else
+            echo "❌ AAB not found"
+            find android -name "*.aab" -type f
+            exit 1
+          fi
         
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
