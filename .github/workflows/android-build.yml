@@ -20,9 +20,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install dependencies
+      - name: Clean and install dependencies
         run: |
-          rm -rf node_modules package-lock.json
+          rm -rf node_modules package-lock.json bun.lockb
           npm cache clean --force
           npm install --legacy-peer-deps
 
