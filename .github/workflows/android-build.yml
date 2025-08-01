@@ -24,8 +24,8 @@ jobs:
         run: |
           rm -f package-lock.json
           rm -f bun.lockb
+          rm -rf node_modules
           npm cache clean --force
-          npm install react-day-picker@^9.1.3 --legacy-peer-deps
           npm install --legacy-peer-deps
       
       - name: Build web app
