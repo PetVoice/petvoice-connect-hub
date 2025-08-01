@@ -5,6 +5,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -12,19 +13,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
 
-      - name: Clean and install dependencies
-        run: |
-          rm -rf node_modules package-lock.json bun.lockb
-          npm cache clean --force
-          npm install --legacy-peer-deps
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
       - name: Build web app
         run: npm run build
