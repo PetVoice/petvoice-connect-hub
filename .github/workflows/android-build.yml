@@ -8,36 +8,33 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-      
-      - name: Clean up old dependencies
-        run: |
-          rm -rf node_modules
-          rm -f package-lock.json
-          npm cache clean --force
-      
+
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
-      
+        run: |
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
+          npm install --legacy-peer-deps
+
       - name: Build web app
         run: npm run build
-      
+
       - name: Sync Capacitor
         run: npx cap sync android
-      
+
       - name: Build AAB
         run: cd android && ./gradlew bundleRelease
-      
+
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
