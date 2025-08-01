@@ -37,6 +37,29 @@ jobs:
       - name: Build web app
         run: npm run build
         
+      - name: Check Capacitor config
+        run: |
+          echo "Checking Capacitor configuration..."
+          if [ -f "capacitor.config.ts" ]; then
+            echo "✅ capacitor.config.ts found"
+            cat capacitor.config.ts
+          elif [ -f "capacitor.config.js" ]; then
+            echo "✅ capacitor.config.js found"  
+            cat capacitor.config.js
+          else
+            echo "❌ No Capacitor config found"
+            exit 1
+          fi
+          
+      - name: Initialize Capacitor Android platform
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Adding Android platform..."
+            npx cap add android
+          else
+            echo "Android platform already exists"
+          fi
+        
       - name: Sync Capacitor
         run: npx cap sync android
         
