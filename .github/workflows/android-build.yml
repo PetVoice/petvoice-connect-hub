@@ -41,8 +41,9 @@ jobs:
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
             echo "🚀 Initializing Capacitor..."
-            npx cap init "PetVoice" "com.petvoice.app" --web-dir="dist"
-            echo "✅ Capacitor initialized"
+            # CAMBIA QUI il Bundle ID se necessario ⬇️
+            npx cap init "PetVoice" "com.petvoice.connect" --web-dir="dist"
+            echo "✅ Capacitor initialized with Bundle ID: com.petvoice.connect"
           else
             echo "✅ Capacitor already configured"
           fi
