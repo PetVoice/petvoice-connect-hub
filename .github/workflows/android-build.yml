@@ -77,12 +77,39 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
         
-      - name: Build AAB
+      - name: Generate release keystore
         run: |
           cd android
-          echo "Building release AAB..."
-          ./gradlew bundleRelease --no-daemon --stacktrace
-          echo "AAB build completed"
+          mkdir -p app/keystore
+          # Genera keystore temporaneo per testing
+          keytool -genkeypair -v -keystore app/keystore/release.keystore \
+            -alias petvoice -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass android -keypass android \
+            -dname "CN=PetVoice, OU=Mobile, O=PetVoice, L=City, S=State, C=US"
+          echo "✅ Release keystore generated"
+          
+      - name: Configure release signing
+        run: |
+          cd android
+          cat >> app/build.gradle << 'EOF'
+          
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file('keystore/release.keystore')
+                      storePassword 'android'
+                      keyAlias 'petvoice'
+                      keyPassword 'android'
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+          echo "✅ Release signing configured"
           
       - name: Verify AAB was created
         run: |
