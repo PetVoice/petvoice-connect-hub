@@ -20,8 +20,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
+      - name: Clear npm cache and install dependencies
+        run: |
+          rm -f package-lock.json
+          rm -f bun.lockb
+          npm cache clean --force
+          npm install --legacy-peer-deps
       
       - name: Build web app
         run: npm run build
