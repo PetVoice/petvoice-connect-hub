@@ -20,13 +20,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Clear npm cache and install dependencies
+      - name: Clean up old dependencies
         run: |
-          rm -f package-lock.json
-          rm -f bun.lockb
           rm -rf node_modules
+          rm -f package-lock.json
           npm cache clean --force
-          npm install --legacy-peer-deps
+      
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
       
       - name: Build web app
         run: npm run build
