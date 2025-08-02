@@ -75,9 +75,6 @@ import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
-import { useSubscription } from '@/hooks/useSubscription';
-import { CancellationModal } from '@/components/CancellationModal';
-import { ReactivationModal } from '@/components/ReactivationModal';
 import { Check, CheckCircle as CheckCircleIcon, Loader2 } from 'lucide-react';
 
 import { useTheme } from '@/contexts/ThemeContext';
@@ -98,7 +95,6 @@ import {
 } from '@/components/legal/LegalDocuments';
 
 import DataIntegrityDashboard from '@/components/admin/DataIntegrityDashboard';
-import SubscriptionTab from '@/components/settings/SubscriptionTab';
 
 interface UserProfile {
   id: string;
@@ -151,7 +147,7 @@ const SettingsPage: React.FC = () => {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const { appearance, updateAppearance } = useAppearance();
-  const { subscription, loading: subscriptionLoading } = useSubscription();
+  
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -1366,14 +1362,10 @@ Continuare?
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="account" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Account
-          </TabsTrigger>
-          <TabsTrigger value="subscription" className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4" />
-            Abbonamenti
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
@@ -1471,10 +1463,6 @@ Continuare?
           {user && <DeleteAccountSection user={user} />}
         </TabsContent>
 
-        {/* Subscription Tab */}
-        <TabsContent value="subscription" className="space-y-6">
-          <SubscriptionTab />
-        </TabsContent>
 
         {/* Security Tab */}
         <TabsContent value="security" className="space-y-6">

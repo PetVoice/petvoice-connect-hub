@@ -45,8 +45,6 @@ import { it, enUS, es } from 'date-fns/locale';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedToast } from '@/hooks/use-unified-toast';
-import { usePlanLimits } from '@/hooks/usePlanLimits';
-import { useSubscription } from '@/hooks/useSubscription';
 import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
@@ -264,8 +262,6 @@ const AnalysisPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { selectedPet } = usePets();
   const { showToast } = useUnifiedToast();
-  const { subscription } = useSubscription();
-  const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const notificationEvents = (() => {
     try {
       return useNotificationEventsContext();

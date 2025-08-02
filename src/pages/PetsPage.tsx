@@ -25,7 +25,7 @@ import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
 import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { useNavigate } from 'react-router-dom';
-import { usePlanLimits } from '@/hooks/usePlanLimits';
+
 import { useNotifications } from '@/hooks/useNotifications';
 // Translation system removed - Italian only
 
@@ -168,7 +168,7 @@ const PetsPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, loading, updatePet, deletePet, addPet, refreshPets } = usePets();
   const navigate = useNavigate();
-  const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
+  
   const { addNotification } = useNotifications();
   const language = 'it';
   const { showToast } = useUnifiedToast();
