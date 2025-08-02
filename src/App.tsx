@@ -21,8 +21,6 @@ import AIMusicTherapyPage from "@/pages/AIMusicTherapyPage";
 import AuthPage from "@/pages/AuthPage";
 
 import CommunityPage from "@/pages/CommunityPage";
-import SubscriptionPage from "@/pages/SubscriptionPage";
-import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import { Index } from "./pages/Index";
 
@@ -145,20 +143,6 @@ function AppContent() {
           <ProtectedRoute>
             <AppLayout>
               <CommunityPage />
-            </AppLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/subscription" element={
-          <ProtectedRoute>
-            <AppLayout>
-              <SubscriptionPage />
-            </AppLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/subscription-success" element={
-          <ProtectedRoute>
-            <AppLayout>
-              <SubscriptionSuccessPage />
             </AppLayout>
           </ProtectedRoute>
         } />
