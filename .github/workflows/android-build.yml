@@ -35,7 +35,7 @@ jobs:
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
             echo "🚀 Initializing Capacitor..."
-            npx cap init "PetVoice" "com.petvoice.connect.v5" --web-dir="dist"
+            npx cap init "PetVoice" "com.petvoice.connect.v6" --web-dir="dist"
             echo "✅ Capacitor initialized"
           fi
           
@@ -103,14 +103,14 @@ jobs:
           keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
           android {
-              namespace "com.petvoice.connect.v5"
+              namespace "com.petvoice.connect.v6"
               compileSdk rootProject.ext.compileSdkVersion
               defaultConfig {
-                  applicationId "com.petvoice.connect.v5"
+                  applicationId "com.petvoice.connect.v6"
                   minSdkVersion rootProject.ext.minSdkVersion
                   targetSdkVersion rootProject.ext.targetSdkVersion
-                  versionCode 7
-                  versionName "1.0.6"
+                  versionCode 8
+                  versionName "1.0.7"
                   testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
                   aaptOptions {
                        ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
@@ -195,6 +195,6 @@ jobs:
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: petvoice-final-aab-v7
+          name: petvoice-final-aab-v8
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
