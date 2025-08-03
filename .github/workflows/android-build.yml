@@ -35,7 +35,7 @@ jobs:
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
             echo "🚀 Initializing Capacitor..."
-            npx cap init "PetVoice" "com.petvoice.connect" --web-dir="dist"
+            npx cap init "PetVoice" "com.petvoice.connect.v2" --web-dir="dist"
             echo "✅ Capacitor initialized"
           fi
           
@@ -93,10 +93,10 @@ jobs:
           keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
           android {
-              namespace "com.petvoice.connect"
+              namespace "com.petvoice.connect.v2"
               compileSdk rootProject.ext.compileSdkVersion
               defaultConfig {
-                  applicationId "com.petvoice.connect"
+                  applicationId "com.petvoice.connect.v2"
                   minSdkVersion rootProject.ext.minSdkVersion
                   targetSdkVersion rootProject.ext.targetSdkVersion
                   versionCode 2
