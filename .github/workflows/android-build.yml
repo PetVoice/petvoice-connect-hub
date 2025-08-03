@@ -35,7 +35,7 @@ jobs:
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
             echo "🚀 Initializing Capacitor..."
-            npx cap init "PetVoice" "com.petvoice.connect.v4" --web-dir="dist"
+            npx cap init "PetVoice" "com.petvoice.connect.v5" --web-dir="dist"
             echo "✅ Capacitor initialized"
           fi
           
@@ -58,20 +58,33 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
         
-      - name: Generate fixed keystore
+      - name: Generate FIXED keystore with consistent SHA1
         run: |
           cd android/app
           mkdir -p keystore
-          # Genera keystore con seed fisso per SHA1 consistente
-          echo "petvoice-fixed-seed-2024" | keytool -genkeypair -v -keystore keystore/release.keystore \
-            -alias petvoice -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass petvoice123 -keypass petvoice123 \
-            -dname "CN=PetVoice, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" \
+          
+          # Crea keystore con parametri identici ogni volta
+          keytool -genkeypair -v \
+            -keystore keystore/release.keystore \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -alias petvoice \
+            -storepass petvoice123 \
+            -keypass petvoice123 \
+            -dname "CN=PetVoice Connect, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" \
             -storetype JKS
+            
           echo "✅ Fixed keystore generated"
           
-          # Mostra SHA1 del certificato
-          keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1 || true
+          # Mostra SHA1 - dovrebbe essere sempre uguale
+          echo "=== SHA1 FINGERPRINT ==="
+          keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1 | head -1
+          
+          # Backup keystore per debug
+          base64 keystore/release.keystore > keystore/release.keystore.base64
+          echo "Keystore base64 per debug:"
+          head -c 100 keystore/release.keystore.base64
           
       - name: Configure signing
         run: |
@@ -98,14 +111,14 @@ jobs:
           keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
           android {
-              namespace "com.petvoice.connect.v4"
+              namespace "com.petvoice.connect.v5"
               compileSdk rootProject.ext.compileSdkVersion
               defaultConfig {
-                  applicationId "com.petvoice.connect.v4"
+                  applicationId "com.petvoice.connect.v5"
                   minSdkVersion rootProject.ext.minSdkVersion
                   targetSdkVersion rootProject.ext.targetSdkVersion
-                  versionCode 6
-                  versionName "1.0.5"
+                  versionCode 7
+                  versionName "1.0.6"
                   testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
                   aaptOptions {
                        // Files and dirs to omit from the packaged APK/AAB
@@ -170,7 +183,25 @@ jobs:
           echo "=== BUILDING RELEASE AAB ==="
           ./gradlew bundleRelease --stacktrace --info
           
-      - name: Verify AAB details  
+      - name: Verify AAB details
+        run: |
+          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
+          echo "=== AAB SIGNING VERIFICATION ==="
+          echo "AAB file: $AAB_PATH"
+          
+          # Estrai e mostra info certificato dall'AAB
+          if command -v jarsigner &> /dev/null; then
+            echo "=== CERTIFICATO SHA1 DALL'AAB ==="
+            jarsigner -verify -verbose -certs "$AAB_PATH" | grep SHA1 || echo "SHA1 non trovato"
+          fi
+          
+          # Mostra SHA1 dal keystore
+          echo "=== CERTIFICATO SHA1 DAL KEYSTORE ==="
+          keytool -list -v -keystore android/app/keystore/release.keystore -storepass petvoice123 | grep SHA1
+          
+          # Verifica che AAB sia firmato
+          echo "=== VERIFICA FIRMA AAB ==="
+          jarsigner -verify "$AAB_PATH" && echo "✅ AAB correttamente firmato" || echo "❌ AAB non firmato correttamente"  
         run: |
           AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
           if [ -f "$AAB_PATH" ]; then
@@ -191,9 +222,29 @@ jobs:
             exit 1
           fi
           
+      - name: Show AAB signing info
+        run: |
+          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
+          echo "=== AAB SIGNING VERIFICATION ==="
+          echo "AAB file: $AAB_PATH"
+          
+          # Estrai e mostra info certificato dall'AAB
+          if command -v jarsigner &> /dev/null; then
+            echo "=== CERTIFICATO SHA1 DALL'AAB ==="
+            jarsigner -verify -verbose -certs "$AAB_PATH" | grep SHA1 || echo "SHA1 non trovato con jarsigner"
+          fi
+          
+          # Mostra SHA1 dal keystore
+          echo "=== CERTIFICATO SHA1 DAL KEYSTORE ==="
+          keytool -list -v -keystore android/app/keystore/release.keystore -storepass petvoice123 | grep SHA1
+          
+          # Verifica che AAB sia firmato
+          echo "=== VERIFICA FIRMA AAB ==="
+          jarsigner -verify "$AAB_PATH" && echo "✅ AAB correttamente firmato" || echo "❌ AAB non firmato correttamente"
+          
       - name: Upload signed AAB
         uses: actions/upload-artifact@v4
         with:
-          name: petvoice-signed-aab-v6
+          name: petvoice-signed-aab-v7
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
