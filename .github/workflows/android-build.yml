@@ -35,7 +35,7 @@ jobs:
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
             echo "🚀 Initializing Capacitor..."
-            npx cap init "PetVoice" "com.petvoice.connect.v3" --web-dir="dist"
+            npx cap init "PetVoice" "com.petvoice.connect.v4" --web-dir="dist"
             echo "✅ Capacitor initialized"
           fi
           
@@ -98,14 +98,14 @@ jobs:
           keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
           android {
-              namespace "com.petvoice.connect.v3"
+              namespace "com.petvoice.connect.v4"
               compileSdk rootProject.ext.compileSdkVersion
               defaultConfig {
-                  applicationId "com.petvoice.connect.v3"
+                  applicationId "com.petvoice.connect.v4"
                   minSdkVersion rootProject.ext.minSdkVersion
                   targetSdkVersion rootProject.ext.targetSdkVersion
-                  versionCode 5
-                  versionName "1.0.4"
+                  versionCode 6
+                  versionName "1.0.5"
                   testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
                   aaptOptions {
                        // Files and dirs to omit from the packaged APK/AAB
@@ -194,6 +194,6 @@ jobs:
       - name: Upload signed AAB
         uses: actions/upload-artifact@v4
         with:
-          name: petvoice-signed-aab-v5
+          name: petvoice-signed-aab-v6
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
