@@ -1,4 +1,4 @@
-name: Build Android AAB - FINALE
+name: Build Android AAB - FINALE PULITO
 on:
   workflow_dispatch:
   push:
@@ -83,13 +83,7 @@ jobs:
           storeFile=keystore/release.keystore
           EOF
           
-      - name: Generate version code
-        id: version
-        run: |
-          # Version code automatico basato su timestamp
-          VERSION_CODE=$(date +%s | tail -c 8)
-          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "Generated version code: $VERSION_CODE"
+      - name: Update build.gradle for signing
         run: |
           cd android/app
           # Backup originale
@@ -200,6 +194,6 @@ jobs:
       - name: Upload signed AAB
         uses: actions/upload-artifact@v4
         with:
-          name: petvoice-signed-aab
+          name: petvoice-signed-aab-v5
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
