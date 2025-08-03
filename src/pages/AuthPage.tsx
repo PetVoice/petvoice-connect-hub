@@ -112,13 +112,13 @@ const AuthPage: React.FC = () => {
             <TabsList className="grid w-full grid-cols-2 bg-muted/50 rounded-xl p-1">
               <TabsTrigger 
                 value="login" 
-                className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200"
+                className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
               >
                 Accedi
               </TabsTrigger>
               <TabsTrigger 
                 value="register"
-                className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200"
+                className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
               >
                 Registrati
               </TabsTrigger>
