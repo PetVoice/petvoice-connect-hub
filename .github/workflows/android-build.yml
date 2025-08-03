@@ -58,15 +58,20 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
         
-      - name: Generate release keystore
+      - name: Generate fixed keystore
         run: |
           cd android/app
           mkdir -p keystore
-          keytool -genkeypair -v -keystore keystore/release.keystore \
+          # Genera keystore con seed fisso per SHA1 consistente
+          echo "petvoice-fixed-seed-2024" | keytool -genkeypair -v -keystore keystore/release.keystore \
             -alias petvoice -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass petvoice123 -keypass petvoice123 \
-            -dname "CN=PetVoice, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT"
-          echo "✅ Release keystore generated"
+            -dname "CN=PetVoice, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" \
+            -storetype JKS
+          echo "✅ Fixed keystore generated"
+          
+          # Mostra SHA1 del certificato
+          keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1 || true
           
       - name: Configure signing
         run: |
