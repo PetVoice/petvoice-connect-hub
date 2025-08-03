@@ -1,4 +1,4 @@
-name: Build Android AAB - FINALE PULITO
+name: Build Android AAB - CLEAN FINAL
 on:
   workflow_dispatch:
   push:
@@ -58,12 +58,10 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
         
-      - name: Generate FIXED keystore with consistent SHA1
+      - name: Generate release keystore
         run: |
           cd android/app
           mkdir -p keystore
-          
-          # Crea keystore con parametri identici ogni volta
           keytool -genkeypair -v \
             -keystore keystore/release.keystore \
             -keyalg RSA \
@@ -74,19 +72,15 @@ jobs:
             -keypass petvoice123 \
             -dname "CN=PetVoice Connect, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" \
             -storetype JKS
-            
-          echo "✅ Fixed keystore generated"
+          echo "✅ Keystore generated"
           
-          # Mostra SHA1 - dovrebbe essere sempre uguale
-          echo "=== SHA1 FINGERPRINT ==="
-          keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1 | head -1
+      - name: Show keystore SHA1
+        run: |
+          cd android/app
+          echo "=== KEYSTORE SHA1 FINGERPRINT ==="
+          keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1
           
-          # Backup keystore per debug
-          base64 keystore/release.keystore > keystore/release.keystore.base64
-          echo "Keystore base64 per debug:"
-          head -c 100 keystore/release.keystore.base64
-          
-      - name: Configure signing
+      - name: Configure signing properties
         run: |
           cd android/app
           cat > keystore.properties << EOF
@@ -95,14 +89,12 @@ jobs:
           keyAlias=petvoice
           storeFile=keystore/release.keystore
           EOF
+          echo "✅ Signing properties configured"
           
       - name: Update build.gradle for signing
         run: |
           cd android/app
-          # Backup originale
           cp build.gradle build.gradle.bak
-          
-          # Aggiungi configurazione signing
           cat > build.gradle << 'EOF'
           apply plugin: 'com.android.application'
 
@@ -121,9 +113,6 @@ jobs:
                   versionName "1.0.6"
                   testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
                   aaptOptions {
-                       // Files and dirs to omit from the packaged APK/AAB
-                       // Dir -> dirs to omit
-                       // File -> files to omit
                        ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
                   }
               }
@@ -168,9 +157,10 @@ jobs:
                   apply plugin: 'com.google.gms.google-services'
               }
           } catch(Exception e) {
-              logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+              logger.info("google-services.json not found")
           }
           EOF
+          echo "✅ build.gradle updated"
           
       - name: Make gradlew executable
         run: chmod +x android/gradlew
@@ -181,70 +171,30 @@ jobs:
           echo "=== CLEANING ==="
           ./gradlew clean
           echo "=== BUILDING RELEASE AAB ==="
-          ./gradlew bundleRelease --stacktrace --info
+          ./gradlew bundleRelease --stacktrace
           
-      - name: Verify AAB details
-        run: |
-          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
-          echo "=== AAB SIGNING VERIFICATION ==="
-          echo "AAB file: $AAB_PATH"
-          
-          # Estrai e mostra info certificato dall'AAB
-          if command -v jarsigner &> /dev/null; then
-            echo "=== CERTIFICATO SHA1 DALL'AAB ==="
-            jarsigner -verify -verbose -certs "$AAB_PATH" | grep SHA1 || echo "SHA1 non trovato"
-          fi
-          
-          # Mostra SHA1 dal keystore
-          echo "=== CERTIFICATO SHA1 DAL KEYSTORE ==="
-          keytool -list -v -keystore android/app/keystore/release.keystore -storepass petvoice123 | grep SHA1
-          
-          # Verifica che AAB sia firmato
-          echo "=== VERIFICA FIRMA AAB ==="
-          jarsigner -verify "$AAB_PATH" && echo "✅ AAB correttamente firmato" || echo "❌ AAB non firmato correttamente"  
+      - name: Verify AAB created
         run: |
           AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
           if [ -f "$AAB_PATH" ]; then
             echo "✅ AAB created successfully"
             echo "File size: $(du -h $AAB_PATH | cut -f1)"
-            echo "File type: $(file $AAB_PATH)"
-            
-            # Verifica contenuto AAB
-            echo "=== AAB CONTENTS ==="
-            unzip -l "$AAB_PATH" | head -20
-            
-            # Verifica AndroidManifest
-            echo "=== CHECKING MANIFEST ==="
-            aapt dump badging "$AAB_PATH" | head -10 || echo "aapt not available"
+            ls -la "$AAB_PATH"
           else
-            echo "❌ AAB not found at $AAB_PATH"
-            find android -name "*.aab" -type f || echo "No AAB files found"
+            echo "❌ AAB not found"
+            find android -name "*.aab" -type f
             exit 1
           fi
           
-      - name: Show AAB signing info
+      - name: Verify AAB signing
         run: |
           AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
-          echo "=== AAB SIGNING VERIFICATION ==="
-          echo "AAB file: $AAB_PATH"
+          echo "=== VERIFYING AAB SIGNATURE ==="
+          jarsigner -verify "$AAB_PATH" && echo "✅ AAB is signed" || echo "❌ AAB not signed"
           
-          # Estrai e mostra info certificato dall'AAB
-          if command -v jarsigner &> /dev/null; then
-            echo "=== CERTIFICATO SHA1 DALL'AAB ==="
-            jarsigner -verify -verbose -certs "$AAB_PATH" | grep SHA1 || echo "SHA1 non trovato con jarsigner"
-          fi
-          
-          # Mostra SHA1 dal keystore
-          echo "=== CERTIFICATO SHA1 DAL KEYSTORE ==="
-          keytool -list -v -keystore android/app/keystore/release.keystore -storepass petvoice123 | grep SHA1
-          
-          # Verifica che AAB sia firmato
-          echo "=== VERIFICA FIRMA AAB ==="
-          jarsigner -verify "$AAB_PATH" && echo "✅ AAB correttamente firmato" || echo "❌ AAB non firmato correttamente"
-          
-      - name: Upload signed AAB
+      - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: petvoice-signed-aab-v7
+          name: petvoice-final-aab-v7
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
