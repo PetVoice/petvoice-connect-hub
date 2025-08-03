@@ -35,7 +35,7 @@ jobs:
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
             echo "🚀 Initializing Capacitor..."
-            npx cap init "PetVoice" "com.petvoice.connect.v2" --web-dir="dist"
+            npx cap init "PetVoice" "com.petvoice.connect.v3" --web-dir="dist"
             echo "✅ Capacitor initialized"
           fi
           
@@ -83,7 +83,13 @@ jobs:
           storeFile=keystore/release.keystore
           EOF
           
-      - name: Update build.gradle for signing
+      - name: Generate version code
+        id: version
+        run: |
+          # Version code automatico basato su timestamp
+          VERSION_CODE=$(date +%s | tail -c 8)
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "Generated version code: $VERSION_CODE"
         run: |
           cd android/app
           # Backup originale
@@ -98,14 +104,14 @@ jobs:
           keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
           android {
-              namespace "com.petvoice.connect.v2"
+              namespace "com.petvoice.connect.v3"
               compileSdk rootProject.ext.compileSdkVersion
               defaultConfig {
-                  applicationId "com.petvoice.connect.v2"
+                  applicationId "com.petvoice.connect.v3"
                   minSdkVersion rootProject.ext.minSdkVersion
                   targetSdkVersion rootProject.ext.targetSdkVersion
-                  versionCode 3
-                  versionName "1.0.2"
+                  versionCode 5
+                  versionName "1.0.4"
                   testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
                   aaptOptions {
                        // Files and dirs to omit from the packaged APK/AAB
