@@ -1,9 +1,7 @@
-name: Build Android AAB - YAML CLEAN
+name: Build Android AAB - BULLETPROOF
 on:
   workflow_dispatch:
   push:
-    branches: [ main, master ]
-  pull_request:
     branches: [ main, master ]
 
 jobs:
@@ -34,111 +32,47 @@ jobs:
       - name: Build web app
         run: npm run build
         
-      - name: Initialize Capacitor if needed
+      - name: Initialize Capacitor
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
-            echo "🚀 Initializing Capacitor..."
             npx cap init "PetVoice" "com.petvoice.connect.v6" --web-dir="dist"
-            echo "✅ Capacitor initialized"
           fi
           
-      - name: Force recreate Android platform
+      - name: Clean and recreate Android platform
         run: |
-          echo "🚀 Force recreating Android platform completely"
-          
-          # Rimuovi android directory se esiste
-          if [ -d "android" ]; then
-            echo "Removing existing android directory"
-            rm -rf android
-          fi
-          
-          # Ricrea Android platform
-          echo "Adding Android platform fresh"
+          rm -rf android
           npx cap add android
-          
-          # Sync Capacitor
-          echo "Syncing Capacitor"
           npx cap sync android
           
-          # Verifica che sia stato creato tutto
-          echo "=== ANDROID PLATFORM VERIFICATION ==="
-          if [ -d "android" ]; then
-            echo "✅ android/ directory exists"
-            
-            if [ -f "android/gradlew" ]; then
-              echo "✅ gradlew exists"
-              chmod +x android/gradlew
-            else
-              echo "❌ gradlew missing - using gradle directly"
-            fi
-            
-            if [ -f "android/app/build.gradle" ]; then
-              echo "✅ build.gradle exists"
-            else
-              echo "❌ build.gradle missing - will create"
-            fi
-            
-            echo "Android directory contents:"
-            ls -la android/
-          else
-            echo "❌ Android platform creation failed"
-            exit 1
-          fi
-          
-      - name: Setup persistent keystore
+      - name: Setup keystore
         run: |
           cd android/app
           mkdir -p keystore
-          
           if [ -f "keystore/release.keystore" ]; then
-            echo "✅ Using existing keystore from repository"
+            echo "Using existing keystore"
           else
-            echo "🚀 Generating new keystore (first time only)"
-            keytool -genkeypair -v \
-              -keystore keystore/release.keystore \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -alias petvoice \
-              -storepass petvoice123 \
-              -keypass petvoice123 \
-              -dname "CN=PetVoice Connect, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" \
-              -storetype JKS
-            echo "✅ New keystore generated"
+            keytool -genkeypair -v -keystore keystore/release.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias petvoice -storepass petvoice123 -keypass petvoice123 -dname "CN=PetVoice Connect, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" -storetype JKS
           fi
           
-      - name: Setup signing properties
+      - name: Create keystore properties
         run: |
           cd android/app
-          if [ ! -f "keystore.properties" ]; then
-            cat > keystore.properties << 'EOF'
-          storePassword=petvoice123
-          keyPassword=petvoice123
-          keyAlias=petvoice
-          storeFile=keystore/release.keystore
-          EOF
-            echo "✅ keystore.properties created"
-          fi
+          echo "storePassword=petvoice123" > keystore.properties
+          echo "keyPassword=petvoice123" >> keystore.properties
+          echo "keyAlias=petvoice" >> keystore.properties
+          echo "storeFile=keystore/release.keystore" >> keystore.properties
           
-      - name: Create build.gradle with signing
+      - name: Update build.gradle
         run: |
           cd android/app
-          echo "🚀 Creating/updating build.gradle with signing config"
-          
-          # Backup existing if present
-          if [ -f "build.gradle" ]; then
-            cp build.gradle build.gradle.bak
-            echo "✅ Existing build.gradle backed up"
-          fi
-          
-          # Create new build.gradle with signing config
-          cat > build.gradle << 'BUILDEOF'
+          cp build.gradle build.gradle.bak
+          cat > temp_build.gradle << 'EOF'
           apply plugin: 'com.android.application'
-
+          
           def keystorePropertiesFile = rootProject.file("app/keystore.properties")
           def keystoreProperties = new Properties()
           keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
+          
           android {
               namespace "com.petvoice.connect.v6"
               compileSdk rootProject.ext.compileSdkVersion
@@ -168,175 +102,67 @@ jobs:
                   }
               }
           }
-
+          
           repositories {
               google()
               mavenCentral()
           }
-
+          
           dependencies {
               implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
               implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
-              implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"  
+              implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
               implementation project(':capacitor-android')
               testImplementation "junit:junit:$junitVersion"
               androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
               androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
               implementation project(':capacitor-cordova-android-plugins')
           }
-
+          
           apply from: 'capacitor.build.gradle'
-          BUILDEOF
-          echo "✅ build.gradle updated with signing config"
+          EOF
+          mv temp_build.gradle build.gradle
           
       - name: Create proguard rules
         run: |
           cd android/app
-          cat > proguard-rules.pro << 'PROEOF'
-          # Capacitor rules
+          cat > proguard-rules.pro << 'EOF'
           -keep class com.getcapacitor.** { *; }
           -keep class com.capacitorjs.** { *; }
           -keep class com.petvoice.** { *; }
           -keepattributes *Annotation*
           -keepattributes SourceFile,LineNumberTable
-          PROEOF
-          echo "✅ proguard-rules.pro created"
+          EOF
           
-      - name: Setup Gradle Wrapper
+      - name: Make gradlew executable
+        run: |
+          if [ -f "android/gradlew" ]; then
+            chmod +x android/gradlew
+          fi
+          
+      - name: Build AAB
         run: |
           cd android
+          if [ -f "gradlew" ]; then
+            ./gradlew clean bundleRelease --stacktrace
+          else
+            gradle clean bundleRelease --stacktrace
+          fi
           
-          if [ ! -f "gradlew" ]; then
-            echo "🚀 Creating missing Gradle Wrapper"
-            
-            # Crea gradlew
-            cat > gradlew << 'GRADLEWEOF'
-          #!/bin/sh
-
-          DEFAULT_JVM_OPTS='"-Dorg.gradle.appname=gradlew"'
-          APP_NAME="Gradle"
-          APP_BASE_NAME=$(basename "$0")
-
-          # Resolve links: $0 may be a link
-          PRG="$0"
-          # Need this for relative symlinks.
-          while [ -h "$PRG" ] ; do
-              ls=$(ls -ld "$PRG")
-              link=$(expr "$ls" : '.*-> \(.*\)
-        
-      - name: Clean and build AAB
-        run: |
-          cd android
-          echo "=== CLEANING ==="
-          ./gradlew clean
-          echo "=== BUILDING RELEASE AAB ==="
-          ./gradlew bundleRelease --stacktrace
-          
-      - name: Verify AAB created
+      - name: Verify AAB
         run: |
           AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
           if [ -f "$AAB_PATH" ]; then
-            echo "✅ AAB created successfully"
-            echo "File size: $(du -h $AAB_PATH | cut -f1)"
-            ls -la "$AAB_PATH"
+            echo "AAB created successfully"
+            du -h "$AAB_PATH"
           else
-            echo "❌ AAB not found"
-            find android -name "*.aab" -type f
+            echo "AAB not found"
             exit 1
           fi
           
-      - name: Upload AAB artifact
+      - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: petvoice-clean-aab-v9
-          path: android/app/build/outputs/bundle/release/app-release.aab
-          retention-days: 30)
-              if expr "$link" : '/.*' > /dev/null; then
-                  PRG="$link"
-              else
-                  PRG=$(dirname "$PRG")"/$link"
-              fi
-          done
-          SAVED="$(pwd)"
-          cd "$(dirname \"$PRG\")" >/dev/null
-          APP_HOME="$(pwd -P)"
-          cd "$SAVED" >/dev/null
-
-          APP_ARGS=$(save "$@")
-          CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
-
-          # Determine the Java command to use to start the JVM.
-          if [ -n "$JAVA_HOME" ] ; then
-              if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
-                  JAVACMD="$JAVA_HOME/jre/sh/java"
-              else
-                  JAVACMD="$JAVA_HOME/bin/java"
-              fi
-              if [ ! -x "$JAVACMD" ] ; then
-                  die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME"
-              fi
-          else
-              JAVACMD="java"
-              which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH."
-          fi
-
-          exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"
-          GRADLEWEOF
-            
-            # Crea gradle wrapper properties
-            mkdir -p gradle/wrapper
-            cat > gradle/wrapper/gradle-wrapper.properties << 'PROPEOF'
-          distributionBase=GRADLE_USER_HOME
-          distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-8.11.1-all.zip
-          zipStoreBase=GRADLE_USER_HOME
-          zipStorePath=wrapper/dists
-          PROPEOF
-            
-            # Scarica gradle wrapper jar
-            mkdir -p gradle/wrapper
-            curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.11.1/gradle/wrapper/gradle-wrapper.jar
-            
-            echo "✅ Gradle Wrapper created"
-          fi
-          
-          # Rendi eseguibile
-          chmod +x gradlew
-          
-          # Verifica
-          if [ -x "gradlew" ]; then
-            echo "✅ gradlew is executable"
-            echo "Gradle version check:"
-            ./gradlew --version || echo "Gradle check failed but continuing..."
-          else
-            echo "❌ gradlew still not executable"
-            exit 1
-          fi
-        
-      - name: Clean and build AAB
-        run: |
-          cd android
-          echo "=== CLEANING ==="
-          ./gradlew clean
-          echo "=== BUILDING RELEASE AAB ==="
-          ./gradlew bundleRelease --stacktrace
-          
-      - name: Verify AAB created
-        run: |
-          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
-          if [ -f "$AAB_PATH" ]; then
-            echo "✅ AAB created successfully"
-            echo "File size: $(du -h $AAB_PATH | cut -f1)"
-            ls -la "$AAB_PATH"
-          else
-            echo "❌ AAB not found"
-            find android -name "*.aab" -type f
-            exit 1
-          fi
-          
-      - name: Upload AAB artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: petvoice-clean-aab-v9
+          name: petvoice-bulletproof-aab-v9
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
