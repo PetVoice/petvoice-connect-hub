@@ -40,9 +40,30 @@ jobs:
           
       - name: Clean and recreate Android platform
         run: |
+          # Salva keystore se esiste
+          if [ -f "android/app/keystore/release.keystore" ]; then
+            echo "🔐 Backing up existing keystore"
+            mkdir -p .keystore-backup
+            cp android/app/keystore/release.keystore .keystore-backup/
+            cp android/app/keystore.properties .keystore-backup/ 2>/dev/null || true
+            echo "✅ Keystore backed up"
+          fi
+          
+          # Elimina e ricrea android
           rm -rf android
           npx cap add android
           npx cap sync android
+          
+          # Ripristina keystore se esisteva
+          if [ -f ".keystore-backup/release.keystore" ]; then
+            echo "🔐 Restoring backed up keystore"
+            mkdir -p android/app/keystore
+            cp .keystore-backup/release.keystore android/app/keystore/
+            if [ -f ".keystore-backup/keystore.properties" ]; then
+              cp .keystore-backup/keystore.properties android/app/
+            fi
+            echo "✅ Keystore restored - same SHA1!"
+          fi
           
       - name: Setup keystore
         run: |
