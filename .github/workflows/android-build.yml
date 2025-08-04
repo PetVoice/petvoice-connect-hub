@@ -35,7 +35,7 @@ jobs:
       - name: Initialize Capacitor
         run: |
           if [ ! -f "capacitor.config.ts" ] && [ ! -f "capacitor.config.js" ]; then
-            npx cap init "PetVoice" "com.petvoice.connect.v7" --web-dir="dist"
+            npx cap init "PetVoice" "com.petvoice.connect.v6" --web-dir="dist"
           fi
           
       - name: Clean and recreate Android platform
@@ -95,10 +95,10 @@ jobs:
           keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
           
           android {
-              namespace "com.petvoice.connect.v7"
+              namespace "com.petvoice.connect.v6"
               compileSdk rootProject.ext.compileSdkVersion
               defaultConfig {
-                  applicationId "com.petvoice.connect.v7"
+                  applicationId "com.petvoice.connect.v6"
                   minSdkVersion rootProject.ext.minSdkVersion
                   targetSdkVersion rootProject.ext.targetSdkVersion
                   versionCode 10
