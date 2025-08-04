@@ -42,19 +42,49 @@ jobs:
             echo "✅ Capacitor initialized"
           fi
           
-      - name: Add Android platform
+      - name: Force recreate Android platform
         run: |
-          if [ ! -d "android" ]; then
-            echo "🚀 Adding Android platform..."
-            npx cap add android
-            echo "✅ Android platform added"
-          else
-            echo "✅ Android platform already exists"
+          echo "🚀 Force recreating Android platform completely"
+          
+          # Rimuovi android directory se esiste
+          if [ -d "android" ]; then
+            echo "Removing existing android directory"
+            rm -rf android
           fi
           
-      - name: Sync Capacitor
-        run: npx cap sync android
-        
+          # Ricrea Android platform
+          echo "Adding Android platform fresh"
+          npx cap add android
+          
+          # Sync Capacitor
+          echo "Syncing Capacitor"
+          npx cap sync android
+          
+          # Verifica che sia stato creato tutto
+          echo "=== ANDROID PLATFORM VERIFICATION ==="
+          if [ -d "android" ]; then
+            echo "✅ android/ directory exists"
+            
+            if [ -f "android/gradlew" ]; then
+              echo "✅ gradlew exists"
+              chmod +x android/gradlew
+            else
+              echo "❌ gradlew missing - using gradle directly"
+            fi
+            
+            if [ -f "android/app/build.gradle" ]; then
+              echo "✅ build.gradle exists"
+            else
+              echo "❌ build.gradle missing - will create"
+            fi
+            
+            echo "Android directory contents:"
+            ls -la android/
+          else
+            echo "❌ Android platform creation failed"
+            exit 1
+          fi
+          
       - name: Setup persistent keystore
         run: |
           cd android/app
@@ -90,10 +120,18 @@ jobs:
             echo "✅ keystore.properties created"
           fi
           
-      - name: Create build.gradle
+      - name: Create build.gradle with signing
         run: |
           cd android/app
-          echo "🚀 Creating build.gradle"
+          echo "🚀 Creating/updating build.gradle with signing config"
+          
+          # Backup existing if present
+          if [ -f "build.gradle" ]; then
+            cp build.gradle build.gradle.bak
+            echo "✅ Existing build.gradle backed up"
+          fi
+          
+          # Create new build.gradle with signing config
           cat > build.gradle << 'BUILDEOF'
           apply plugin: 'com.android.application'
 
@@ -139,7 +177,7 @@ jobs:
           dependencies {
               implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
               implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
-              implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+              implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"  
               implementation project(':capacitor-android')
               testImplementation "junit:junit:$junitVersion"
               androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
@@ -149,7 +187,7 @@ jobs:
 
           apply from: 'capacitor.build.gradle'
           BUILDEOF
-          echo "✅ build.gradle created"
+          echo "✅ build.gradle updated with signing config"
           
       - name: Create proguard rules
         run: |
@@ -164,8 +202,116 @@ jobs:
           PROEOF
           echo "✅ proguard-rules.pro created"
           
-      - name: Make gradlew executable
-        run: chmod +x android/gradlew
+      - name: Setup Gradle Wrapper
+        run: |
+          cd android
+          
+          if [ ! -f "gradlew" ]; then
+            echo "🚀 Creating missing Gradle Wrapper"
+            
+            # Crea gradlew
+            cat > gradlew << 'GRADLEWEOF'
+          #!/bin/sh
+
+          DEFAULT_JVM_OPTS='"-Dorg.gradle.appname=gradlew"'
+          APP_NAME="Gradle"
+          APP_BASE_NAME=$(basename "$0")
+
+          # Resolve links: $0 may be a link
+          PRG="$0"
+          # Need this for relative symlinks.
+          while [ -h "$PRG" ] ; do
+              ls=$(ls -ld "$PRG")
+              link=$(expr "$ls" : '.*-> \(.*\)
+        
+      - name: Clean and build AAB
+        run: |
+          cd android
+          echo "=== CLEANING ==="
+          ./gradlew clean
+          echo "=== BUILDING RELEASE AAB ==="
+          ./gradlew bundleRelease --stacktrace
+          
+      - name: Verify AAB created
+        run: |
+          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
+          if [ -f "$AAB_PATH" ]; then
+            echo "✅ AAB created successfully"
+            echo "File size: $(du -h $AAB_PATH | cut -f1)"
+            ls -la "$AAB_PATH"
+          else
+            echo "❌ AAB not found"
+            find android -name "*.aab" -type f
+            exit 1
+          fi
+          
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: petvoice-clean-aab-v9
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30)
+              if expr "$link" : '/.*' > /dev/null; then
+                  PRG="$link"
+              else
+                  PRG=$(dirname "$PRG")"/$link"
+              fi
+          done
+          SAVED="$(pwd)"
+          cd "$(dirname \"$PRG\")" >/dev/null
+          APP_HOME="$(pwd -P)"
+          cd "$SAVED" >/dev/null
+
+          APP_ARGS=$(save "$@")
+          CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+
+          # Determine the Java command to use to start the JVM.
+          if [ -n "$JAVA_HOME" ] ; then
+              if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+                  JAVACMD="$JAVA_HOME/jre/sh/java"
+              else
+                  JAVACMD="$JAVA_HOME/bin/java"
+              fi
+              if [ ! -x "$JAVACMD" ] ; then
+                  die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME"
+              fi
+          else
+              JAVACMD="java"
+              which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH."
+          fi
+
+          exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"
+          GRADLEWEOF
+            
+            # Crea gradle wrapper properties
+            mkdir -p gradle/wrapper
+            cat > gradle/wrapper/gradle-wrapper.properties << 'PROPEOF'
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.11.1-all.zip
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          PROPEOF
+            
+            # Scarica gradle wrapper jar
+            mkdir -p gradle/wrapper
+            curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.11.1/gradle/wrapper/gradle-wrapper.jar
+            
+            echo "✅ Gradle Wrapper created"
+          fi
+          
+          # Rendi eseguibile
+          chmod +x gradlew
+          
+          # Verifica
+          if [ -x "gradlew" ]; then
+            echo "✅ gradlew is executable"
+            echo "Gradle version check:"
+            ./gradlew --version || echo "Gradle check failed but continuing..."
+          else
+            echo "❌ gradlew still not executable"
+            exit 1
+          fi
         
       - name: Clean and build AAB
         run: |
