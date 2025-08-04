@@ -175,20 +175,10 @@ jobs:
         run: |
           cd android/app
           
-          # Verifica che build.gradle esista, altrimenti aspetta
+          # Se build.gradle non esiste, crealo da zero
           if [ ! -f "build.gradle" ]; then
-            echo "❌ build.gradle not found, capacitor sync might have failed"
-            echo "Files in android/app:"
-            ls -la
-            exit 1
-          fi
-          
-          # Backup originale solo se non esiste già
-          if [ ! -f "build.gradle.bak" ]; then
-            cp build.gradle build.gradle.bak
-            echo "✅ build.gradle backed up"
-          fi
-          cat > build.gradle << 'EOF'
+            echo "🚀 Creating missing build.gradle"
+            cat > build.gradle << 'EOF'
           apply plugin: 'com.android.application'
 
           def keystorePropertiesFile = rootProject.file("app/keystore.properties")
@@ -255,7 +245,53 @@ jobs:
               logger.info("google-services.json not found")
           }
           EOF
+            echo "✅ build.gradle created successfully"
+          else
+            # Se esiste, backup e modifica
+            if [ ! -f "build.gradle.bak" ]; then
+              cp build.gradle build.gradle.bak
+              echo "✅ build.gradle backed up"
+            fi
+          fi
+          
+          echo "=== FINAL build.gradle CHECK ==="
+          if [ -f "build.gradle" ]; then
+            echo "✅ build.gradle exists"
+            echo "First few lines:"
+            head -5 build.gradle
+          else
+            echo "❌ build.gradle still missing"
+            exit 1
+          fi
           echo "✅ build.gradle updated"
+          
+          # Crea proguard-rules.pro se non esiste
+          if [ ! -f "proguard-rules.pro" ]; then
+            echo "🚀 Creating proguard-rules.pro"
+            cat > proguard-rules.pro << 'EOF'
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+
+# Capacitor rules
+-keep class com.getcapacitor.** { *; }
+-keep class com.capacitorjs.** { *; }
+-keep class com.petvoice.** { *; }
+
+# WebView rules
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# General Android rules
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+EOF
+            echo "✅ proguard-rules.pro created"
+          fi
           
       - name: Make gradlew executable
         run: chmod +x android/gradlew
