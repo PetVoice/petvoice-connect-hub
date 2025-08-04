@@ -1,4 +1,4 @@
-name: Build Android AAB - CLEAN FINAL
+name: Build Android AAB - YAML CLEAN
 on:
   workflow_dispatch:
   push:
@@ -42,59 +42,18 @@ jobs:
             echo "✅ Capacitor initialized"
           fi
           
-      - name: Show Capacitor config
-        run: |
-          echo "=== CAPACITOR CONFIG ==="
-          if [ -f "capacitor.config.ts" ]; then
-            cat capacitor.config.ts
-          elif [ -f "capacitor.config.js" ]; then
-            cat capacitor.config.js
-          fi
-          
       - name: Add Android platform
         run: |
           if [ ! -d "android" ]; then
             echo "🚀 Adding Android platform..."
             npx cap add android
-            
-            # Verifica che sia stato creato correttamente
-            if [ -d "android" ]; then
-              echo "✅ Android platform added successfully"
-              echo "Android directory structure:"
-              find android -type f -name "*.gradle" | head -5
-            else
-              echo "❌ Failed to add Android platform"
-              exit 1
-            fi
+            echo "✅ Android platform added"
           else
             echo "✅ Android platform already exists"
           fi
           
       - name: Sync Capacitor
-        run: |
-          npx cap sync android
-          
-          # Verifica che la struttura Android sia stata creata correttamente
-          echo "=== ANDROID STRUCTURE CHECK ==="
-          if [ -d "android" ]; then
-            echo "✅ android/ directory exists"
-            if [ -d "android/app" ]; then
-              echo "✅ android/app/ directory exists"
-              echo "Files in android/app/:"
-              ls -la android/app/ | head -10
-              
-              if [ -f "android/app/build.gradle" ]; then
-                echo "✅ build.gradle exists"
-              else
-                echo "❌ build.gradle missing"
-              fi
-            else
-              echo "❌ android/app/ directory missing"
-            fi
-          else
-            echo "❌ android/ directory missing"
-            exit 1
-          fi
+        run: npx cap sync android
         
       - name: Setup persistent keystore
         run: |
@@ -103,8 +62,6 @@ jobs:
           
           if [ -f "keystore/release.keystore" ]; then
             echo "✅ Using existing keystore from repository"
-            echo "=== EXISTING KEYSTORE SHA1 ==="
-            keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1 | head -1
           else
             echo "🚀 Generating new keystore (first time only)"
             keytool -genkeypair -v \
@@ -117,68 +74,27 @@ jobs:
               -keypass petvoice123 \
               -dname "CN=PetVoice Connect, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" \
               -storetype JKS
-            
             echo "✅ New keystore generated"
-            echo "=== NEW KEYSTORE SHA1 ==="
-            keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1 | head -1
-            
-            # Commit keystore al repository per future builds
-            echo "📦 Committing keystore to repository"
-            git config --global user.email "github-actions@github.com"
-            git config --global user.name "GitHub Actions"
-            git add keystore/release.keystore
-            
-            # Verifica se ci sono changes da committare
-            if ! git diff --staged --quiet; then
-              git commit -m "add: persistent keystore for consistent app signing"
-              git push
-              echo "✅ Keystore committed to repository"
-            else
-              echo "ℹ️ No keystore changes to commit"
-            fi
           fi
           
-      - name: Show keystore SHA1
+      - name: Setup signing properties
         run: |
           cd android/app
-          echo "=== KEYSTORE SHA1 FINGERPRINT ==="
-          keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1
-          
-      - name: Setup persistent signing properties
-        run: |
-          cd android/app
-          
-          if [ -f "keystore.properties" ]; then
-            echo "✅ Using existing keystore.properties"
-          else
-            echo "🚀 Creating keystore.properties"
-            cat > keystore.properties << EOF
+          if [ ! -f "keystore.properties" ]; then
+            cat > keystore.properties << 'EOF'
           storePassword=petvoice123
           keyPassword=petvoice123
           keyAlias=petvoice
           storeFile=keystore/release.keystore
           EOF
-            
-            # Commit anche keystore.properties
-            git add keystore.properties
-            if ! git diff --staged --quiet; then
-              git commit -m "add: keystore properties for app signing"
-              git push
-              echo "✅ keystore.properties committed to repository"
-            fi
+            echo "✅ keystore.properties created"
           fi
           
-          echo "=== KEYSTORE CONFIGURATION ==="
-          cat keystore.properties
-          
-      - name: Update build.gradle for signing
+      - name: Create build.gradle
         run: |
           cd android/app
-          
-          # Se build.gradle non esiste, crealo da zero
-          if [ ! -f "build.gradle" ]; then
-            echo "🚀 Creating missing build.gradle"
-            cat > build.gradle << 'EOF'
+          echo "🚀 Creating build.gradle"
+          cat > build.gradle << 'BUILDEOF'
           apply plugin: 'com.android.application'
 
           def keystorePropertiesFile = rootProject.file("app/keystore.properties")
@@ -195,9 +111,6 @@ jobs:
                   versionCode 9
                   versionName "1.0.8"
                   testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-                  aaptOptions {
-                       ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
-                  }
               }
               signingConfigs {
                   release {
@@ -235,63 +148,21 @@ jobs:
           }
 
           apply from: 'capacitor.build.gradle'
-
-          try {
-              def servicesJSON = file('google-services.json')
-              if (servicesJSON.text) {
-                  apply plugin: 'com.google.gms.google-services'
-              }
-          } catch(Exception e) {
-              logger.info("google-services.json not found")
-          }
-          EOF
-            echo "✅ build.gradle created successfully"
-          else
-            # Se esiste, backup e modifica
-            if [ ! -f "build.gradle.bak" ]; then
-              cp build.gradle build.gradle.bak
-              echo "✅ build.gradle backed up"
-            fi
-          fi
+          BUILDEOF
+          echo "✅ build.gradle created"
           
-          echo "=== FINAL build.gradle CHECK ==="
-          if [ -f "build.gradle" ]; then
-            echo "✅ build.gradle exists"
-            echo "First few lines:"
-            head -5 build.gradle
-          else
-            echo "❌ build.gradle still missing"
-            exit 1
-          fi
-          echo "✅ build.gradle updated"
-          
-          # Crea proguard-rules.pro se non esiste
-          if [ ! -f "proguard-rules.pro" ]; then
-            echo "🚀 Creating proguard-rules.pro"
-            cat > proguard-rules.pro << 'EOF'
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-
-# Capacitor rules
--keep class com.getcapacitor.** { *; }
--keep class com.capacitorjs.** { *; }
--keep class com.petvoice.** { *; }
-
-# WebView rules
--keepclassmembers class * {
-    @android.webkit.JavascriptInterface <methods>;
-}
-
-# General Android rules
--keepattributes *Annotation*
--keepattributes SourceFile,LineNumberTable
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
--keep public class * extends android.app.Service
-EOF
-            echo "✅ proguard-rules.pro created"
-          fi
+      - name: Create proguard rules
+        run: |
+          cd android/app
+          cat > proguard-rules.pro << 'PROEOF'
+          # Capacitor rules
+          -keep class com.getcapacitor.** { *; }
+          -keep class com.capacitorjs.** { *; }
+          -keep class com.petvoice.** { *; }
+          -keepattributes *Annotation*
+          -keepattributes SourceFile,LineNumberTable
+          PROEOF
+          echo "✅ proguard-rules.pro created"
           
       - name: Make gradlew executable
         run: chmod +x android/gradlew
@@ -317,15 +188,9 @@ EOF
             exit 1
           fi
           
-      - name: Verify AAB signing
-        run: |
-          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
-          echo "=== VERIFYING AAB SIGNATURE ==="
-          jarsigner -verify "$AAB_PATH" && echo "✅ AAB is signed" || echo "❌ AAB not signed"
-          
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: petvoice-final-aab-v9
+          name: petvoice-clean-aab-v9
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
