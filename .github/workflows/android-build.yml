@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
         
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
@@ -58,21 +61,47 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
         
-      - name: Generate release keystore
+      - name: Setup persistent keystore
         run: |
           cd android/app
           mkdir -p keystore
-          keytool -genkeypair -v \
-            -keystore keystore/release.keystore \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -alias petvoice \
-            -storepass petvoice123 \
-            -keypass petvoice123 \
-            -dname "CN=PetVoice Connect, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" \
-            -storetype JKS
-          echo "✅ Keystore generated"
+          
+          if [ -f "keystore/release.keystore" ]; then
+            echo "✅ Using existing keystore from repository"
+            echo "=== EXISTING KEYSTORE SHA1 ==="
+            keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1 | head -1
+          else
+            echo "🚀 Generating new keystore (first time only)"
+            keytool -genkeypair -v \
+              -keystore keystore/release.keystore \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -alias petvoice \
+              -storepass petvoice123 \
+              -keypass petvoice123 \
+              -dname "CN=PetVoice Connect, OU=Development, O=PetVoice Inc, L=Rome, S=Lazio, C=IT" \
+              -storetype JKS
+            
+            echo "✅ New keystore generated"
+            echo "=== NEW KEYSTORE SHA1 ==="
+            keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1 | head -1
+            
+            # Commit keystore al repository per future builds
+            echo "📦 Committing keystore to repository"
+            git config --global user.email "github-actions@github.com"
+            git config --global user.name "GitHub Actions"
+            git add keystore/release.keystore
+            
+            # Verifica se ci sono changes da committare
+            if ! git diff --staged --quiet; then
+              git commit -m "add: persistent keystore for consistent app signing"
+              git push
+              echo "✅ Keystore committed to repository"
+            else
+              echo "ℹ️ No keystore changes to commit"
+            fi
+          fi
           
       - name: Show keystore SHA1
         run: |
@@ -80,16 +109,32 @@ jobs:
           echo "=== KEYSTORE SHA1 FINGERPRINT ==="
           keytool -list -v -keystore keystore/release.keystore -storepass petvoice123 | grep SHA1
           
-      - name: Configure signing properties
+      - name: Setup persistent signing properties
         run: |
           cd android/app
-          cat > keystore.properties << EOF
+          
+          if [ -f "keystore.properties" ]; then
+            echo "✅ Using existing keystore.properties"
+          else
+            echo "🚀 Creating keystore.properties"
+            cat > keystore.properties << EOF
           storePassword=petvoice123
           keyPassword=petvoice123
           keyAlias=petvoice
           storeFile=keystore/release.keystore
           EOF
-          echo "✅ Signing properties configured"
+            
+            # Commit anche keystore.properties
+            git add keystore.properties
+            if ! git diff --staged --quiet; then
+              git commit -m "add: keystore properties for app signing"
+              git push
+              echo "✅ keystore.properties committed to repository"
+            fi
+          fi
+          
+          echo "=== KEYSTORE CONFIGURATION ==="
+          cat keystore.properties
           
       - name: Update build.gradle for signing
         run: |
@@ -127,8 +172,10 @@ jobs:
               buildTypes {
                   release {
                       signingConfig signingConfigs.release
-                      minifyEnabled false
-                      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                      minifyEnabled true
+                      shrinkResources true
+                      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                      debuggable false
                   }
               }
           }
